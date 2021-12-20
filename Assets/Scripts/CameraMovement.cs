@@ -6,6 +6,8 @@ public class CameraMovement : MonoBehaviour
 {
     [SerializeField]
     private float cameraSpeed;
+    [SerializeField]
+    private float zoomSpeed;
 
     public void MoveCameraRelative(Vector2 delta, bool ignoreSpeed = false)
     {
@@ -24,5 +26,10 @@ public class CameraMovement : MonoBehaviour
         Vector3 newPos = position;
         newPos.z = transform.position.z;
         transform.position = newPos;
+    }
+
+    public void ZoomCamera(float diff)
+    {
+        Camera.main.orthographicSize += diff * zoomSpeed;
     }
 }

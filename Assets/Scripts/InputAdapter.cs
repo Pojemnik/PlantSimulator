@@ -10,7 +10,6 @@ public class InputAdapter : MonoBehaviour
 
     private PlayerInput playerInput;
     private InputAction moveCamera;
-    private InputAction moveCameraHold;
     private InputAction moveCameraDrag;
     private bool dragCamera;
     private Vector2 origin;
@@ -21,13 +20,20 @@ public class InputAdapter : MonoBehaviour
         moveCamera = playerInput.actions.FindAction("MoveCamera", true);
         dragCamera = false;
         moveCameraDrag = playerInput.actions.FindAction("MoveCameraDrag", true);
-        moveCameraHold = playerInput.actions.FindAction("MoveCameraHold", true);
+        InputAction moveCameraHold = playerInput.actions.FindAction("MoveCameraHold", true);
         moveCameraHold.started += (_) =>
         {
             origin = Camera.main.ScreenToWorldPoint(moveCameraDrag.ReadValue<Vector2>());
             dragCamera = true;
         };
         moveCameraHold.canceled += (_) => dragCamera = false;
+        InputAction zoomCamera = playerInput.actions.FindAction("ZoomCamera", true);
+        zoomCamera.started += (args) =>
+        {
+            float value = -args.ReadValue<float>();
+            value = Mathf.Clamp(value, -1, 1);
+            cameraMovement.ZoomCamera(value);
+        };
     }
 
     private void LateUpdate()
