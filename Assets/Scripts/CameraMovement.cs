@@ -7,9 +7,16 @@ public class CameraMovement : MonoBehaviour
     [SerializeField]
     private float cameraSpeed;
 
-    public void MoveCameraRelative(Vector2 delta)
+    public void MoveCameraRelative(Vector2 delta, bool ignoreSpeed = false)
     {
-        transform.position = transform.position + (Vector3)delta * cameraSpeed;
+        if (ignoreSpeed)
+        {
+            transform.position = transform.position + (Vector3)delta;
+        }
+        else
+        {
+            transform.position = transform.position + (Vector3)delta * cameraSpeed;
+        }
     }
 
     public void MoveCameraToPosition(Vector2 position)
