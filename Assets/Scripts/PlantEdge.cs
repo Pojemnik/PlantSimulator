@@ -13,6 +13,7 @@ public class PlantEdge : MonoBehaviour
     }
 
     public EdgeType type;
+    public List<SubNode> subnodes;
 
     private LineRenderer lineRenderer;
 

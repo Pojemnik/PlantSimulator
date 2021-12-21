@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Collider2D))]
 public class PlantNode : MonoBehaviour, IInteractive
 {
-    private PlantEdge predecessor;
-    private List<PlantEdge> successors;
+    public PlantEdge predecessor;
+    public List<PlantEdge> successors;
 
     public void OnInteraction(Vector2 position)
     {
