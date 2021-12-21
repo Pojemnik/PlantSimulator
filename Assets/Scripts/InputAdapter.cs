@@ -34,6 +34,14 @@ public class InputAdapter : MonoBehaviour
             value = Mathf.Clamp(value, -1, 1);
             cameraMovement.ZoomCamera(value);
         };
+        InputAction select = playerInput.actions.FindAction("Select", true);
+        select.started += (args) =>
+        {
+            Vector2 start = Camera.main.transform.position;
+            Vector2 end = Camera.main.ScreenToWorldPoint(moveCameraDrag.ReadValue<Vector2>());
+            RaycastHit2D hit = Physics2D.Raycast(start, end);
+            hit.transform?.gameObject.GetComponent<IInteractive>()?.OnInteraction(end);
+        };
     }
 
     private void LateUpdate()
