@@ -13,9 +13,11 @@ public class InputAdapter : MonoBehaviour
     private InputAction moveCameraDrag;
     private bool dragCamera;
     private Vector2 origin;
+    private int interactionLayerMask;
 
-    private void Awake()
+    private void Start()
     {
+        interactionLayerMask = LayerMask.GetMask("Interactive");
         playerInput = GetComponent<PlayerInput>();
         moveCamera = playerInput.actions.FindAction("MoveCamera", true);
         dragCamera = false;
@@ -39,9 +41,19 @@ public class InputAdapter : MonoBehaviour
         {
             Vector2 start = Camera.main.ScreenToWorldPoint(moveCameraDrag.ReadValue<Vector2>());
             Debug.Log(start);
-            RaycastHit2D hit = Physics2D.Raycast(start, Vector2.zero);
+            RaycastHit2D hit = Physics2D.Raycast(start, Vector2.zero, Mathf.Infinity, interactionLayerMask);
             hit.transform?.gameObject.GetComponent<IInteractive>()?.OnInteraction(start);
         };
+        InputAction cancel = playerInput.actions.FindAction("Cancel", true);
+        cancel.started += (args) =>
+        {
+            NodeSpawner.Instance.StopNodePlacement();
+        };
+    }
+
+    private void Update()
+    {
+        NodeSpawner.Instance.OnSelectionMove(Camera.main.ScreenToWorldPoint(moveCameraDrag.ReadValue<Vector2>()));
     }
 
     private void LateUpdate()

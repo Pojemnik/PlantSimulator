@@ -9,7 +9,8 @@ public class PlantEdge : MonoBehaviour
     {
         Stem,
         Root,
-        Wood
+        Wood,
+        Temp
     }
 
     public EdgeType type;
