@@ -255,6 +255,46 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4449018812935011449, guid: bc76a4103a60cce40aada5fa33f1b73c, type: 3}
+      propertyPath: errorGradient.key0.b
+      value: 0.19508718
+      objectReference: {fileID: 0}
+    - target: {fileID: 4449018812935011449, guid: bc76a4103a60cce40aada5fa33f1b73c, type: 3}
+      propertyPath: errorGradient.key0.g
+      value: 0.19508718
+      objectReference: {fileID: 0}
+    - target: {fileID: 4449018812935011449, guid: bc76a4103a60cce40aada5fa33f1b73c, type: 3}
+      propertyPath: errorGradient.key0.r
+      value: 0.754717
+      objectReference: {fileID: 0}
+    - target: {fileID: 4449018812935011449, guid: bc76a4103a60cce40aada5fa33f1b73c, type: 3}
+      propertyPath: errorGradient.key1.b
+      value: 0.18284085
+      objectReference: {fileID: 0}
+    - target: {fileID: 4449018812935011449, guid: bc76a4103a60cce40aada5fa33f1b73c, type: 3}
+      propertyPath: errorGradient.key1.g
+      value: 0.18284085
+      objectReference: {fileID: 0}
+    - target: {fileID: 4449018812935011449, guid: bc76a4103a60cce40aada5fa33f1b73c, type: 3}
+      propertyPath: errorGradient.key1.r
+      value: 0.9056604
+      objectReference: {fileID: 0}
+    - target: {fileID: 4449018812935011449, guid: bc76a4103a60cce40aada5fa33f1b73c, type: 3}
+      propertyPath: defaultGradient.key0.g
+      value: 0.9913454
+      objectReference: {fileID: 0}
+    - target: {fileID: 4449018812935011449, guid: bc76a4103a60cce40aada5fa33f1b73c, type: 3}
+      propertyPath: defaultGradient.key0.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4449018812935011449, guid: bc76a4103a60cce40aada5fa33f1b73c, type: 3}
+      propertyPath: defaultGradient.key1.b
+      value: 0.8555436
+      objectReference: {fileID: 0}
+    - target: {fileID: 4449018812935011449, guid: bc76a4103a60cce40aada5fa33f1b73c, type: 3}
+      propertyPath: defaultGradient.key1.r
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8196956379264762496, guid: bc76a4103a60cce40aada5fa33f1b73c, type: 3}
       propertyPath: m_Name
       value: TemporaryEdge
@@ -966,10 +1006,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fccf9f390cc570459ca24bfff6165ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  plantCore: {fileID: 0}
+  plantCore: {fileID: 2011503866}
   temporaryEdge: {fileID: 388237261}
-  stemTop: {x: 0, y: 0}
-  rootBottom: {x: 0, y: 0}
+  minEgdeLength: 0.5
+  nodePrefab: {fileID: 0}
+  subnodePrefab: {fileID: 0}
+  edgePrefab: {fileID: 0}
 --- !u!4 &1024691613
 Transform:
   m_ObjectHideFlags: 0

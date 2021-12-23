@@ -27,4 +27,9 @@ public class PlantEdge : MonoBehaviour
     {
         lineRenderer.SetPositions(new Vector3[] { begin, end });
     }
+
+    public void SetGradient(Gradient gradient)
+    {
+        lineRenderer.colorGradient = gradient;
+    }
 }

@@ -8,16 +8,22 @@ public class NodeSpawner : Singleton<NodeSpawner>
     private PlantNode plantCore;
     [SerializeField]
     private TemporaryEdgeController temporaryEdge;
+    [SerializeField]
+    private float minEgdeLength;
 
-    [Header("Plant base config")]
-    [Header("Stem node")]
+    [Header("Prefabs")]
     [SerializeField]
-    private Vector2 stemTop;
-    [Header("Root node")]
+    private GameObject nodePrefab;
     [SerializeField]
-    private Vector2 rootBottom;
+    private GameObject subnodePrefab;
+    [SerializeField]
+    private GameObject edgePrefab;
 
     private bool nodePlacement;
+    private Vector2 placementStartPosition;
+    private Vector2 currentPosition;
+    private PlantEdge.EdgeType newEdgeType;
+    private PlantNode placementStartNode;
 
     private void Start()
     {
@@ -25,10 +31,14 @@ public class NodeSpawner : Singleton<NodeSpawner>
         temporaryEdge.gameObject.SetActive(false);
     }
 
-    public void StartNodePlacement(PlantNode startPos)
+    public void StartNodePlacement(PlantNode startNode)
     {
         nodePlacement = true;
-        temporaryEdge.edgeStart.transform.position = startPos.transform.position;
+        placementStartNode = startNode;
+        placementStartPosition = startNode.transform.position;
+        temporaryEdge.edgeStart.transform.position = placementStartPosition;
+        currentPosition = placementStartPosition;
+        newEdgeType = startNode.predecessor.type;
         temporaryEdge.gameObject.SetActive(true);
     }
 
@@ -38,12 +48,44 @@ public class NodeSpawner : Singleton<NodeSpawner>
         temporaryEdge.gameObject.SetActive(false);
     }
 
+    public void PlaceNode()
+    {
+        if(!CheckPlacementCorrectness())
+        {
+            return;
+        }
+        //GameObject newEdge = Instantiate(edgePrefab, placementStartNode.transform);
+        //Instantiate(nodePrefab, newEdge.transform);
+    }
+
+    private bool CheckPlacementCorrectness()
+    {
+        if ((currentPosition - placementStartPosition).magnitude < minEgdeLength)
+        {
+            Debug.Log("Plant edge too short");
+            return false;
+        }
+        if(currentPosition.y < plantCore.transform.position.y && newEdgeType == PlantEdge.EdgeType.Stem)
+        {
+            Debug.Log("Stem cannot be underground");
+            return false;
+        }
+        if (currentPosition.y > plantCore.transform.position.y && newEdgeType == PlantEdge.EdgeType.Root)
+        {
+            Debug.Log("Root have to be underground");
+            return false;
+        }
+        return true;
+    }
+
     public void OnSelectionMove(Vector2 position)
     {
         temporaryEdge.edgeEnd.transform.position = position;
+        currentPosition = position;
         if(nodePlacement)
         {
             temporaryEdge.UpdateEdgePositions();
+            temporaryEdge.PlacementCorrectness = CheckPlacementCorrectness();
         }
     }
 }
