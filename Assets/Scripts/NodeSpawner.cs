@@ -38,7 +38,7 @@ public class NodeSpawner : Singleton<NodeSpawner>
         placementStartPosition = startNode.transform.position;
         temporaryEdge.edgeStart.transform.position = placementStartPosition;
         currentPosition = placementStartPosition;
-        newEdgeType = startNode.predecessor.type;
+        newEdgeType = startNode.predecessor.Type;
         temporaryEdge.gameObject.SetActive(true);
     }
 
@@ -50,12 +50,24 @@ public class NodeSpawner : Singleton<NodeSpawner>
 
     public void PlaceNode()
     {
+        if(!nodePlacement)
+        {
+            return;
+        }
         if(!CheckPlacementCorrectness())
         {
             return;
         }
-        //GameObject newEdge = Instantiate(edgePrefab, placementStartNode.transform);
-        //Instantiate(nodePrefab, newEdge.transform);
+        GameObject newEdgeObject = Instantiate(edgePrefab, placementStartNode.transform);
+        PlantEdge newEdge = newEdgeObject.GetComponent<PlantEdge>();
+        newEdge.Type = newEdgeType;
+        newEdge.SetPositions(placementStartPosition, currentPosition);
+        placementStartNode.successors.Add(newEdge);
+        GameObject newNodeObject = Instantiate(nodePrefab, newEdge.transform);
+        newNodeObject.transform.position = currentPosition;
+        PlantNode newNode = newNodeObject.GetComponent<PlantNode>();
+        newNode.predecessor = newEdge;
+        StopNodePlacement();
     }
 
     private bool CheckPlacementCorrectness()

@@ -42,7 +42,14 @@ public class InputAdapter : MonoBehaviour
             Vector2 start = Camera.main.ScreenToWorldPoint(moveCameraDrag.ReadValue<Vector2>());
             Debug.Log(start);
             RaycastHit2D hit = Physics2D.Raycast(start, Vector2.zero, Mathf.Infinity, interactionLayerMask);
-            hit.transform?.gameObject.GetComponent<IInteractive>()?.OnInteraction(start);
+            if (hit.transform == null)
+            {
+                NodeSpawner.Instance.PlaceNode();
+            }
+            else
+            {
+                hit.transform.gameObject.GetComponent<IInteractive>()?.OnInteraction(start);
+            }
         };
         InputAction cancel = playerInput.actions.FindAction("Cancel", true);
         cancel.started += (args) =>
