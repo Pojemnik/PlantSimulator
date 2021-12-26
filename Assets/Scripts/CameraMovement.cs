@@ -8,6 +8,10 @@ public class CameraMovement : MonoBehaviour
     private float cameraSpeed;
     [SerializeField]
     private float zoomSpeed;
+    [SerializeField]
+    private float minZoom;
+    [SerializeField]
+    private float maxZoom;
 
     public void MoveCameraRelative(Vector2 delta, bool ignoreSpeed = false)
     {
@@ -31,5 +35,16 @@ public class CameraMovement : MonoBehaviour
     public void ZoomCamera(float diff)
     {
         Camera.main.orthographicSize += diff * zoomSpeed;
+        if(Camera.main.orthographicSize < minZoom)
+        {
+            Camera.main.orthographicSize = minZoom;
+        }
+        else
+        {
+            if (Camera.main.orthographicSize > maxZoom)
+            {
+                Camera.main.orthographicSize = maxZoom;
+            }
+        }
     }
 }
