@@ -117,7 +117,7 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.0060372874
+        value: 0.032
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -180,3 +180,5 @@ MonoBehaviour:
   color: {r: 1, g: 0.9316326, b: 0.14528298, a: 1}
   radius: 0.15
   position: {x: 0, y: 0}
+  a: 0.004
+  b: 0.012

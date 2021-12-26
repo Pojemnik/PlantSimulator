@@ -11,6 +11,8 @@ public class CircleRenderer : MonoBehaviour
     public Color color;
     public float radius;
     public Vector2 position;
+    public float a = 0.004f;
+    public float b = 0.012f;
 
     private LineRenderer line;
     private Gradient gradient;
@@ -24,6 +26,9 @@ public class CircleRenderer : MonoBehaviour
     {
         GenerateAndSetGradient();
         Calculate();
+        CameraMovement.Instance.OnZoomChange += (_, zoom) => { 
+            line.startWidth = line.endWidth = b + (zoom * a);
+        };
     }
 
     private void GenerateAndSetGradient()

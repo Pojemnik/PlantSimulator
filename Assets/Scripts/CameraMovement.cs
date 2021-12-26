@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraMovement : MonoBehaviour
+public class CameraMovement : Singleton<CameraMovement>
 {
     [SerializeField]
     private float cameraSpeed;
@@ -12,6 +12,8 @@ public class CameraMovement : MonoBehaviour
     private float minZoom;
     [SerializeField]
     private float maxZoom;
+
+    public event System.EventHandler<float> OnZoomChange;
 
     public void MoveCameraRelative(Vector2 delta, bool ignoreSpeed = false)
     {
@@ -46,5 +48,6 @@ public class CameraMovement : MonoBehaviour
                 Camera.main.orthographicSize = maxZoom;
             }
         }
+        OnZoomChange?.Invoke(this, Camera.main.orthographicSize);
     }
 }

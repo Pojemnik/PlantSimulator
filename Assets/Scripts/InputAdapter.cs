@@ -5,9 +5,6 @@ using UnityEngine.InputSystem;
 
 public class InputAdapter : MonoBehaviour
 {
-    [SerializeField]
-    private CameraMovement cameraMovement;
-
     private PlayerInput playerInput;
     private InputAction moveCamera;
     private InputAction moveCameraDrag;
@@ -34,7 +31,7 @@ public class InputAdapter : MonoBehaviour
         {
             float value = -args.ReadValue<float>();
             value = Mathf.Clamp(value, -1, 1);
-            cameraMovement.ZoomCamera(value);
+            CameraMovement.Instance.ZoomCamera(value);
         };
         InputAction select = playerInput.actions.FindAction("Select", true);
         select.started += (args) =>
@@ -65,14 +62,14 @@ public class InputAdapter : MonoBehaviour
 
     private void LateUpdate()
     {
-        cameraMovement.MoveCameraRelative(moveCamera.ReadValue<Vector2>() * Time.deltaTime);
+        CameraMovement.Instance.MoveCameraRelative(moveCamera.ReadValue<Vector2>() * Time.deltaTime);
         if (dragCamera)
         {
             Vector2 currentPos = Camera.main.ScreenToWorldPoint(moveCameraDrag.ReadValue<Vector2>());
             Vector2 diff = currentPos - origin;
             diff.x = -diff.x;
             diff.y = -diff.y;
-            cameraMovement.MoveCameraRelative(diff, true);
+            CameraMovement.Instance.MoveCameraRelative(diff, true);
         }
     }
 }
