@@ -16,6 +16,8 @@ public class PlantEdge : MonoBehaviour
     [SerializeField]
     private EdgeType type;
     public List<SubNode> subnodes;
+    public PlantNode begin;
+    public PlantNode end;
 
     private LineRenderer lineRenderer;
 

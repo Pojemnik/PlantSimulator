@@ -125,7 +125,7 @@ LineRenderer:
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
     numCornerVertices: 0
-    numCapVertices: 5
+    numCapVertices: 10
     alignment: 0
     textureMode: 0
     shadowBias: 0.5
@@ -146,3 +146,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   subnodes: []
+  begin: {fileID: 0}
+  end: {fileID: 0}

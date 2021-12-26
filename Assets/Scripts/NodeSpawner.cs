@@ -4,12 +4,17 @@ using UnityEngine;
 
 public class NodeSpawner : Singleton<NodeSpawner>
 {
+    [Header("References")]
     [SerializeField]
     private PlantNode plantCore;
     [SerializeField]
     private TemporaryEdgeController temporaryEdge;
+
+    [Header("Config")]
     [SerializeField]
     private float minEgdeLength;
+    [SerializeField]
+    private float distanceBetweenSubnodes;
 
     [Header("Prefabs")]
     [SerializeField]
