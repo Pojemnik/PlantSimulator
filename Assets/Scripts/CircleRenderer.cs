@@ -52,7 +52,7 @@ public class CircleRenderer : MonoBehaviour
         line.colorGradient = gradient;
     }
 
-    private void Calculate()
+    public void Calculate()
     {
         line.positionCount = points + 1;
         Vector3[] positions = new Vector3[points + 1];
