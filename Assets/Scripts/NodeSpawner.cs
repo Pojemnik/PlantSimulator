@@ -28,7 +28,7 @@ public class NodeSpawner : Singleton<NodeSpawner>
     private Vector2 placementStartPosition;
     private Vector2 currentPosition;
     private PlantEdge.EdgeType newEdgeType;
-    private PlantNode placementStartNode;
+    private PlantNodeBase placementStartNode;
 
     private void Start()
     {
@@ -36,14 +36,14 @@ public class NodeSpawner : Singleton<NodeSpawner>
         temporaryEdge.gameObject.SetActive(false);
     }
 
-    public void StartNodePlacement(PlantNode startNode)
+    public void StartNodePlacement(PlantNodeBase startNode)
     {
         nodePlacement = true;
         placementStartNode = startNode;
         placementStartPosition = startNode.transform.position;
         temporaryEdge.edgeStart.transform.position = placementStartPosition;
         currentPosition = placementStartPosition;
-        newEdgeType = startNode.predecessor.Type;
+        newEdgeType = startNode.edge.Type;
         temporaryEdge.gameObject.SetActive(true);
     }
 
@@ -63,15 +63,20 @@ public class NodeSpawner : Singleton<NodeSpawner>
         {
             return;
         }
-        GameObject newEdgeObject = Instantiate(edgePrefab, placementStartNode.transform);
+        GameObject newEdgeObject = Instantiate(edgePrefab);
         PlantEdge newEdge = newEdgeObject.GetComponent<PlantEdge>();
         newEdge.Type = newEdgeType;
         newEdge.SetPositions(placementStartPosition, currentPosition);
-        placementStartNode.successors.Add(newEdge);
-        GameObject newNodeObject = Instantiate(nodePrefab, newEdge.transform);
+        //if(placementStartNode is SubNode)
+        //{
+        //    PlantNode createdNode = Instantiate(nodePrefab, placementStartNode.edge.transform).GetComponent<PlantNode>();
+        //    createdNode.predecessor
+        //}
+        //placementStartNode.successors.Add(newEdge);
+        GameObject newNodeObject = Instantiate(nodePrefab);
         newNodeObject.transform.position = currentPosition;
         PlantNode newNode = newNodeObject.GetComponent<PlantNode>();
-        newNode.predecessor = newEdge;
+        newNode.edge = newEdge;
         StopNodePlacement();
     }
 
