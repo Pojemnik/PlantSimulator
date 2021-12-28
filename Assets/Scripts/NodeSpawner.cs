@@ -67,17 +67,37 @@ public class NodeSpawner : Singleton<NodeSpawner>
         PlantEdge newEdge = newEdgeObject.GetComponent<PlantEdge>();
         newEdge.Type = newEdgeType;
         newEdge.SetPositions(placementStartPosition, currentPosition);
-        //if(placementStartNode is SubNode)
-        //{
-        //    PlantNode createdNode = Instantiate(nodePrefab, placementStartNode.edge.transform).GetComponent<PlantNode>();
-        //    createdNode.predecessor
-        //}
-        //placementStartNode.successors.Add(newEdge);
-        GameObject newNodeObject = Instantiate(nodePrefab);
-        newNodeObject.transform.position = currentPosition;
-        PlantNode newNode = newNodeObject.GetComponent<PlantNode>();
-        newNode.edge = newEdge;
+        if(placementStartNode is SubNode)
+        {
+            SplitEdge();
+        }
+        PlantNode startNode = (PlantNode)placementStartNode;
+        startNode.successors.Add(newEdge);
+        PlantNode NewEndNode = Instantiate(nodePrefab).GetComponent<PlantNode>();
+        NewEndNode.transform.position = currentPosition;
+        NewEndNode.edge = newEdge;
         StopNodePlacement();
+    }
+
+    private void SplitEdge()
+    {
+        PlantNode createdNode = Instantiate(nodePrefab).GetComponent<PlantNode>();
+        createdNode.transform.position = placementStartNode.transform.position;
+        PlantEdge edgeBefore = Instantiate(edgePrefab).GetComponent<PlantEdge>();
+        edgeBefore.begin = placementStartNode.edge.begin;
+        edgeBefore.Type = placementStartNode.edge.Type;
+        edgeBefore.end = createdNode;
+        edgeBefore.SetPositions(edgeBefore.begin.transform.position, edgeBefore.end.transform.position);
+        PlantEdge edgeAfter = Instantiate(edgePrefab).GetComponent<PlantEdge>();
+        edgeAfter.begin = createdNode;
+        edgeAfter.Type = placementStartNode.edge.Type;
+        edgeAfter.end = placementStartNode.edge.end;
+        edgeAfter.SetPositions(edgeAfter.begin.transform.position, edgeAfter.end.transform.position);
+        createdNode.edge = edgeBefore;
+        createdNode.successors = new List<PlantEdge>(new PlantEdge[] { edgeAfter });
+        Destroy(placementStartNode.edge.gameObject);
+        Destroy(placementStartNode.gameObject);
+        placementStartNode = createdNode;
     }
 
     private bool CheckPlacementCorrectness()

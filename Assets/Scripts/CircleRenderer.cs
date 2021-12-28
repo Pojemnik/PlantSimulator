@@ -16,6 +16,7 @@ public class CircleRenderer : MonoBehaviour
 
     private LineRenderer line;
     private Gradient gradient;
+    private System.EventHandler<float> zoomChangeHandler;
 
     private void Awake()
     {
@@ -26,9 +27,18 @@ public class CircleRenderer : MonoBehaviour
     {
         GenerateAndSetGradient();
         Calculate();
-        CameraMovement.Instance.OnZoomChange += (_, zoom) => { 
+        zoomChangeHandler = (_, zoom) => {
             line.startWidth = line.endWidth = b + (zoom * a);
         };
+        CameraMovement.Instance.OnZoomChange += zoomChangeHandler;
+    }
+
+    private void OnDestroy()
+    {
+        if (CameraMovement.Instance != null)
+        {
+            CameraMovement.Instance.OnZoomChange -= zoomChangeHandler;
+        }
     }
 
     private void GenerateAndSetGradient()

@@ -43,7 +43,7 @@ public class PlantEdge : MonoBehaviour
         lineRenderer.useWorldSpace = true;
     }
 
-    public void SetPositions(Vector2 begin, Vector2 end)
+    public void SetPositions(Vector3 begin, Vector3 end)
     {
         lineRenderer.SetPositions(new Vector3[] { begin, end });
     }
