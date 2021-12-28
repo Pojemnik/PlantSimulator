@@ -13,8 +13,12 @@ public class NodeSpawner : Singleton<NodeSpawner>
     [Header("Config")]
     [SerializeField]
     private float minEgdeLength;
+
+    [Header("Subnodes")]
     [SerializeField]
     private float distanceBetweenSubnodes;
+    [SerializeField]
+    private float offset;
 
     [Header("Prefabs")]
     [SerializeField]
@@ -106,7 +110,7 @@ public class NodeSpawner : Singleton<NodeSpawner>
         PlaceSubnodes(edgeAfter);
         createdNode.edge = edgeBefore;
         createdNode.successors = new List<PlantEdge>(new PlantEdge[] { edgeAfter });
-        foreach(SubNode subNode in placementStartNode.edge.subnodes)
+        foreach (SubNode subNode in placementStartNode.edge.subnodes)
         {
             Destroy(subNode.gameObject);
         }
@@ -124,10 +128,12 @@ public class NodeSpawner : Singleton<NodeSpawner>
         Vector3 edgeVector = endPos - startPos;
         float length = edgeVector.magnitude;
         edgeVector = edgeVector.normalized;
-        length -= 0.8f;
-        int subnodesCount = (int)(length / 0.45f);
-        float distanceBetweenSubnodes = length / subnodesCount;
-        for (int i = 1; i <= subnodesCount; i++)
+        length -= offset;
+        int subnodesCount = (int)(length / distanceBetweenSubnodes);
+        float additionalOffset = length - distanceBetweenSubnodes * (subnodesCount - 1);
+        startPos += edgeVector * additionalOffset / 2;
+        startPos += edgeVector * offset / 2;
+        for (int i = 0; i < subnodesCount; i++)
         {
             SubNode subNode = Instantiate(subnodePrefab).GetComponent<SubNode>();
             subNode.transform.position = startPos + edgeVector * distanceBetweenSubnodes * i;
