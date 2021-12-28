@@ -1003,9 +1003,9 @@ MonoBehaviour:
   plantCore: {fileID: 2011503866}
   temporaryEdge: {fileID: 388237261}
   minEgdeLength: 0.5
-  distanceBetweenSubnodes: 0
+  distanceBetweenSubnodes: 0.45
   nodePrefab: {fileID: 3595132282100370110, guid: 4e8e86b85f9a89445beaad80693d6491, type: 3}
-  subnodePrefab: {fileID: 0}
+  subnodePrefab: {fileID: 3595132282100370110, guid: bab11d66cf9ee334fbdd12cb3923b322, type: 3}
   edgePrefab: {fileID: 5370861122904286515, guid: d4bdda8d0af0a624a99cda5da340fb35, type: 3}
 --- !u!4 &1024691613
 Transform:
@@ -1784,7 +1784,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 0.3
+  m_Radius: 0.5
 --- !u!1001 &2035543295
 PrefabInstance:
   m_ObjectHideFlags: 0
