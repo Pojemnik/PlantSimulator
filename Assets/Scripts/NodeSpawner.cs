@@ -67,58 +67,69 @@ public class NodeSpawner : Singleton<NodeSpawner>
         {
             return;
         }
-        GameObject newEdgeObject = Instantiate(edgePrefab);
-        PlantEdge newEdge = newEdgeObject.GetComponent<PlantEdge>();
-        newEdge.Type = newEdgeType;
-        newEdge.SetPositions(placementStartPosition, currentPosition);
         if (placementStartNode is SubNode)
         {
             SplitEdge();
         }
         PlantNode startNode = (PlantNode)placementStartNode;
-        startNode.successors.Add(newEdge);
         PlantNode newEndNode = Instantiate(nodePrefab).GetComponent<PlantNode>();
         newEndNode.transform.position = LayersManager.Instance.GetPositionOnLayer(currentPosition, LayersManager.LayerNames.Nodes);
+        PlantEdge newEdge = CreateEdge(startNode, newEndNode);
+        startNode.successors.Add(newEdge);
         newEndNode.edge = newEdge;
         newEndNode.GetComponent<CircleRenderer>().Calculate();
-        newEdge.begin = startNode;
-        newEdge.end = newEndNode;
         PlaceSubnodes(newEdge);
         StopNodePlacement();
     }
 
     private void SplitEdge()
     {
-        //Subnodes should be transfered to new edges instead of being removed and created
         PlantNode createdNode = Instantiate(nodePrefab).GetComponent<PlantNode>();
         createdNode.transform.position = LayersManager.Instance.GetPositionOnLayer(placementStartNode.transform.position, LayersManager.LayerNames.Edges);
-        PlantEdge edgeBefore = Instantiate(edgePrefab).GetComponent<PlantEdge>();
-        edgeBefore.begin = placementStartNode.edge.begin;
-        edgeBefore.Type = placementStartNode.edge.Type;
-        edgeBefore.end = createdNode;
-        Vector3 startPosition = LayersManager.Instance.GetPositionOnLayer(edgeBefore.begin.transform.position, LayersManager.LayerNames.Edges);
-        Vector3 endPosition = LayersManager.Instance.GetPositionOnLayer(edgeBefore.end.transform.position, LayersManager.LayerNames.Edges);
-        edgeBefore.SetPositions(startPosition, endPosition);
-        PlaceSubnodes(edgeBefore);
-        PlantEdge edgeAfter = Instantiate(edgePrefab).GetComponent<PlantEdge>();
-        edgeAfter.begin = createdNode;
-        edgeAfter.Type = placementStartNode.edge.Type;
-        edgeAfter.end = placementStartNode.edge.end;
-        startPosition = LayersManager.Instance.GetPositionOnLayer(edgeAfter.begin.transform.position, LayersManager.LayerNames.Edges);
-        endPosition = LayersManager.Instance.GetPositionOnLayer(edgeAfter.end.transform.position, LayersManager.LayerNames.Edges);
-        edgeAfter.SetPositions(startPosition, endPosition);
-        PlaceSubnodes(edgeAfter);
+        PlantEdge edgeBefore = CreateEdge(placementStartNode.edge.begin, createdNode);
+        PlantEdge edgeAfter = CreateEdge(createdNode, placementStartNode.edge.end);
         createdNode.edge = edgeBefore;
         createdNode.successors = new List<PlantEdge>(new PlantEdge[] { edgeAfter });
-        foreach (SubNode subNode in placementStartNode.edge.subnodes)
-        {
-            Destroy(subNode.gameObject);
-        }
-        placementStartNode.edge.subnodes.Clear();
+        TransferSubnodesToNewEdges(edgeBefore, edgeAfter);
         Destroy(placementStartNode.edge.gameObject);
         Destroy(placementStartNode.gameObject);
         placementStartNode = createdNode;
         createdNode.GetComponent<CircleRenderer>().Calculate();
+    }
+
+    private PlantEdge CreateEdge(PlantNode begin, PlantNode end)
+    {
+        PlantEdge edge = Instantiate(edgePrefab).GetComponent<PlantEdge>();
+        edge.begin = begin;
+        edge.Type = placementStartNode.edge.Type;
+        edge.end = end;
+        Vector3 startPosition = LayersManager.Instance.GetPositionOnLayer(edge.begin.transform.position, LayersManager.LayerNames.Edges);
+        Vector3 endPosition = LayersManager.Instance.GetPositionOnLayer(edge.end.transform.position, LayersManager.LayerNames.Edges);
+        edge.SetPositions(startPosition, endPosition);
+        return edge;
+    }
+
+    private void TransferSubnodesToNewEdges(PlantEdge edgeBefore, PlantEdge edgeAfter)
+    {
+        float startNodeDistance = (placementStartNode.transform.position - placementStartNode.transform.position).magnitude;
+        foreach (SubNode subNode in placementStartNode.edge.subnodes)
+        {
+            if (subNode == placementStartNode)
+            {
+                continue;
+            }
+            float subnodeDistance = (subNode.transform.position - placementStartNode.transform.position).magnitude;
+            if (startNodeDistance > subnodeDistance)
+            {
+                edgeAfter.subnodes.Add(subNode);
+                subNode.edge = edgeAfter;
+            }
+            else
+            {
+                edgeBefore.subnodes.Add(subNode);
+                subNode.edge = edgeBefore;
+            }
+        }
     }
 
     private void PlaceSubnodes(PlantEdge edge)
