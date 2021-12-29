@@ -14,6 +14,18 @@ public class CircleRenderer : MonoBehaviour
     public float a = 0.004f;
     public float b = 0.012f;
 
+    private bool showCircle;
+
+    public bool ShowCircle
+    {
+        get => showCircle;
+        set
+        {
+            showCircle = value;
+            line.enabled = showCircle;
+        }
+    }
+
     private LineRenderer line;
     private Gradient gradient;
     private System.EventHandler<float> zoomChangeHandler;
