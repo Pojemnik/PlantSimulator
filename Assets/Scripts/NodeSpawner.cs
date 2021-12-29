@@ -63,7 +63,7 @@ public class NodeSpawner : Singleton<NodeSpawner>
         {
             return;
         }
-        if (!CheckPlacementCorrectness())
+        if (!CheckPlacementCorrectness(true))
         {
             return;
         }
@@ -147,29 +147,49 @@ public class NodeSpawner : Singleton<NodeSpawner>
         for (int i = 0; i < subnodesCount; i++)
         {
             SubNode subNode = Instantiate(subnodePrefab).GetComponent<SubNode>();
-            subNode.transform.position = startPos + edgeVector * distanceBetweenSubnodes * i;
+            subNode.transform.position = LayersManager.Instance.GetPositionOnLayer(startPos + edgeVector * distanceBetweenSubnodes * i, LayersManager.LayerNames.Nodes);
             subNode.edge = edge;
             subNode.GetComponent<CircleRenderer>().Calculate();
             edge.subnodes.Add(subNode);
         }
     }
 
-    private bool CheckPlacementCorrectness()
+    private bool CheckPlacementCorrectness(bool displayMessages)
     {
         if ((currentPosition - placementStartPosition).magnitude < minEgdeLength)
         {
-            Debug.Log("Plant edge too short");
+            if(displayMessages)
+            {
+                Debug.Log("Plant edge too short");
+            }
             return false;
         }
         if (currentPosition.y < plantCore.transform.position.y && newEdgeType == PlantEdge.EdgeType.Stem)
         {
-            Debug.Log("Stem cannot be underground");
+            if(displayMessages)
+            {
+                Debug.Log("Stem cannot be underground");
+            }
             return false;
         }
         if (currentPosition.y > plantCore.transform.position.y && newEdgeType == PlantEdge.EdgeType.Root)
         {
-            Debug.Log("Root have to be underground");
+            if(displayMessages)
+            {
+                Debug.Log("Root have to be underground");
+            }
             return false;
+        }
+        foreach(Collider2D collider in temporaryEdge.collidesWith)
+        {
+            if(collider.gameObject != placementStartNode.gameObject)
+            {
+                if(displayMessages)
+                {
+                    Debug.Log("Edge collides with something");
+                }
+                return false;
+            }
         }
         return true;
     }
@@ -180,8 +200,8 @@ public class NodeSpawner : Singleton<NodeSpawner>
         currentPosition = position;
         if (nodePlacement)
         {
-            temporaryEdge.UpdateEdgePositions();
-            temporaryEdge.PlacementCorrectness = CheckPlacementCorrectness();
+            temporaryEdge.UpdateEdgePosition();
+            temporaryEdge.PlacementCorrectness = CheckPlacementCorrectness(false);
         }
     }
 }

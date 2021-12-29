@@ -37,7 +37,7 @@ public class InputAdapter : MonoBehaviour
         select.started += (args) =>
         {
             Vector2 start = Camera.main.ScreenToWorldPoint(moveCameraDrag.ReadValue<Vector2>());
-            Debug.Log(start);
+            //Debug.Log(start);
             RaycastHit2D hit = Physics2D.Raycast(start, Vector2.zero, Mathf.Infinity, interactionLayerMask);
             if (hit.transform == null)
             {

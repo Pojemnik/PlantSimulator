@@ -146,6 +146,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 3
   subnodes: []
+  begin: {fileID: 0}
+  end: {fileID: 0}
 --- !u!1 &2698482740525994877
 GameObject:
   m_ObjectHideFlags: 0
@@ -207,7 +209,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97654281eb52e474f98ae914fb6ed8f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  predecessor: {fileID: 0}
+  edge: {fileID: 0}
   successors:
   - {fileID: 4856494098647206217}
 --- !u!1 &8196956379264762496
@@ -220,6 +222,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2820232908968553435}
   - component: {fileID: 4449018812935011449}
+  - component: {fileID: 462846193774671025}
   m_Layer: 0
   m_Name: TemporaryEdge
   m_TagString: Untagged
@@ -260,6 +263,95 @@ MonoBehaviour:
   edgeStart: {fileID: 7781582682881935598}
   edgeEnd: {fileID: 2631415842781318532}
   edge: {fileID: 4856494098647206217}
+  defaultGradient:
+    serializedVersion: 2
+    key0: {r: 0, g: 0.9913454, b: 1, a: 1}
+    key1: {r: 0, g: 1, b: 0.8555436, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  errorGradient:
+    serializedVersion: 2
+    key0: {r: 0.754717, g: 0.19508718, b: 0.19508718, a: 1}
+    key1: {r: 0.9056604, g: 0.18284085, b: 0.18284085, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  width: 0.2
+--- !u!60 &462846193774671025
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8196956379264762496}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 0, y: 1}
+      - {x: -0.95105654, y: 0.30901697}
+      - {x: -0.5877852, y: -0.80901706}
+      - {x: 0.58778536, y: -0.80901694}
+      - {x: 0.9510565, y: 0.30901712}
 --- !u!1 &8594789908542781637
 GameObject:
   m_ObjectHideFlags: 0
@@ -321,5 +413,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97654281eb52e474f98ae914fb6ed8f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  predecessor: {fileID: 4856494098647206217}
+  edge: {fileID: 0}
   successors: []
