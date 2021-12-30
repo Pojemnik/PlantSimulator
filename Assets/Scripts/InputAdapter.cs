@@ -21,6 +21,7 @@ public class InputAdapter : MonoBehaviour
         moveCamera = playerInput.actions.FindAction("MoveCamera", true);
         dragCamera = false;
         moveCameraDrag = playerInput.actions.FindAction("MoveCameraDrag", true);
+        moveCameraDrag.performed += DetectMouseHover;
         InputAction moveCameraHold = playerInput.actions.FindAction("MoveCameraHold", true);
         moveCameraHold.started += (_) =>
         {
@@ -57,16 +58,17 @@ public class InputAdapter : MonoBehaviour
         currentlyHovered = null;
     }
 
-    private void Update()
+    private void DetectMouseHover(InputAction.CallbackContext ctx)
     {
-        Vector3 position = Camera.main.ScreenToWorldPoint(moveCameraDrag.ReadValue<Vector2>());
+        Vector3 position = Camera.main.ScreenToWorldPoint(ctx.ReadValue<Vector2>());
         NodeSpawner.Instance.OnSelectionMove(position);
         RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, interactionLayerMask);
-        if(hit.transform != null)
+        if (hit.transform != null)
         {
             IInteractive interactive = hit.transform.gameObject.GetComponent<IInteractive>();
             if (interactive != null)
             {
+                currentlyHovered?.OnHoverEnd();
                 currentlyHovered = interactive;
                 currentlyHovered.OnHoverStart();
             }
