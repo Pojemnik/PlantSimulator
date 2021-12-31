@@ -18,6 +18,16 @@ public class PlantEdge : MonoBehaviour
     public List<SubNode> subnodes;
     public PlantNode begin;
     public PlantNode end;
+    private int level;
+    public int Level
+    {
+        get => level;
+        set
+        {
+            level = value;
+            lineRenderer.endWidth = lineRenderer.startWidth = PlantConfigManager.Instance.edgeWidthsOnLevels[level];
+        }
+    }
 
     private LineRenderer lineRenderer;
 
@@ -26,7 +36,7 @@ public class PlantEdge : MonoBehaviour
         get => type; set
         {
             type = value;
-            if(PlantColorsManager.Instance.gradients.TryGetValue(type, out Gradient gradient))
+            if(PlantConfigManager.Instance.gradients.TryGetValue(type, out Gradient gradient))
             {
                 lineRenderer.colorGradient = gradient;
             }
