@@ -10,13 +10,22 @@ public class InputAdapter : MonoBehaviour
     private InputAction moveCameraDrag;
     private bool dragCamera;
     private Vector2 origin;
-    private int interactionLayerMask;
+    private int nodesLayerMask;
+    private int edgesLayerMask;
     private IInteractive currentlyHovered;
+    private Tool currentTool;
+    private enum Tool
+    {
+        AddEdge,
+        Upgrade,
+        AddLeaf
+    }
 
     private void Start()
     {
-        //Move hover detection to OnMoveCameraDrag
-        interactionLayerMask = LayerMask.GetMask("Interactive");
+        currentTool = Tool.AddEdge;
+        nodesLayerMask = LayerMask.GetMask("Nodes");
+        edgesLayerMask = LayerMask.GetMask("Edges");
         playerInput = GetComponent<PlayerInput>();
         moveCamera = playerInput.actions.FindAction("MoveCamera", true);
         dragCamera = false;
@@ -37,19 +46,7 @@ public class InputAdapter : MonoBehaviour
             CameraMovement.Instance.ZoomCamera(value);
         };
         InputAction select = playerInput.actions.FindAction("Select", true);
-        select.started += (args) =>
-        {
-            Vector2 start = Camera.main.ScreenToWorldPoint(moveCameraDrag.ReadValue<Vector2>());
-            RaycastHit2D hit = Physics2D.Raycast(start, Vector2.zero, Mathf.Infinity, interactionLayerMask);
-            if (hit.transform == null)
-            {
-                NodeSpawner.Instance.PlaceNode();
-            }
-            else
-            {
-                hit.transform.gameObject.GetComponent<IInteractive>()?.OnInteraction();
-            }
-        };
+        select.started += InteractDependingOnTool;
         InputAction cancel = playerInput.actions.FindAction("Cancel", true);
         cancel.started += (args) =>
         {
@@ -62,7 +59,7 @@ public class InputAdapter : MonoBehaviour
     {
         Vector3 position = Camera.main.ScreenToWorldPoint(ctx.ReadValue<Vector2>());
         NodeSpawner.Instance.OnSelectionMove(position);
-        RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, interactionLayerMask);
+        RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, nodesLayerMask);
         if (hit.transform != null)
         {
             IInteractive interactive = hit.transform.gameObject.GetComponent<IInteractive>();
@@ -82,6 +79,28 @@ public class InputAdapter : MonoBehaviour
         {
             currentlyHovered?.OnHoverEnd();
             currentlyHovered = null;
+        }
+    }
+
+    private void InteractDependingOnTool(InputAction.CallbackContext ctx)
+    {
+        switch (currentTool)
+        {
+            case Tool.AddEdge:
+                Vector2 start = Camera.main.ScreenToWorldPoint(moveCameraDrag.ReadValue<Vector2>());
+                RaycastHit2D hit = Physics2D.Raycast(start, Vector2.zero, Mathf.Infinity, nodesLayerMask);
+                if (hit.transform == null)
+                {
+                    NodeSpawner.Instance.PlaceNode();
+                }
+                else
+                {
+                    hit.transform.gameObject.GetComponent<IInteractive>()?.OnInteraction();
+                }
+                break;
+            default:
+                Debug.Log("Incorrect tool");
+                break;
         }
     }
 
