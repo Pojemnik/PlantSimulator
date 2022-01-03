@@ -11,7 +11,6 @@ public class TemporaryEdgeControllerEditor : Editor
     private SerializedProperty edgeStart;
     private SerializedProperty edgeEnd;
     private SerializedProperty edge;
-    private SerializedProperty width;
 
     private void OnEnable()
     {
@@ -20,7 +19,6 @@ public class TemporaryEdgeControllerEditor : Editor
         edgeStart = serializedObject.FindProperty("edgeStart");
         edgeEnd = serializedObject.FindProperty("edgeEnd");
         edge = serializedObject.FindProperty("edge");
-        width = serializedObject.FindProperty("width");
     }
 
     public override void OnInspectorGUI()
@@ -31,7 +29,6 @@ public class TemporaryEdgeControllerEditor : Editor
         EditorGUILayout.PropertyField(edgeStart);
         EditorGUILayout.PropertyField(edgeEnd);
         EditorGUILayout.PropertyField(edge);
-        EditorGUILayout.PropertyField(width);
         serializedObject.ApplyModifiedProperties();
     }
 }

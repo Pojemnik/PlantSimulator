@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NodeSpawner : Singleton<NodeSpawner>
+public class EdgeSpawner : Singleton<EdgeSpawner>
 {
     [Header("References")]
     [SerializeField]
@@ -13,41 +13,65 @@ public class NodeSpawner : Singleton<NodeSpawner>
     [Header("Config")]
     [SerializeField]
     private float minEgdeLength;
-
-    [Header("Subnodes")]
     [SerializeField]
-    private float distanceBetweenSubnodes;
-    [SerializeField]
-    private float offset;
+    private float nodeEndRadius;
 
     [Header("Prefabs")]
     [SerializeField]
     private GameObject nodePrefab;
     [SerializeField]
-    private GameObject subnodePrefab;
-    [SerializeField]
     private GameObject edgePrefab;
 
-    private bool nodePlacement;
+    private bool edgePlacement;
+    private bool placementAtEndNode;
     private Vector2 placementStartPosition;
     private Vector2 currentPosition;
     private PlantEdge.EdgeType newEdgeType;
-    private PlantNodeBase placementStartNode;
+    private PlantEdge placementStartEdge;
+    private PlantNode newEdgeBeginNode;
 
     private void Start()
     {
-        nodePlacement = false;
+        edgePlacement = false;
         temporaryEdge.gameObject.SetActive(false);
     }
 
-    public void StartNodePlacement(PlantNodeBase startNode)
+    public void StartEdgePlacement(Vector2 position, PlantEdge edge)
     {
-        nodePlacement = true;
-        placementStartNode = startNode;
-        placementStartPosition = startNode.transform.position;
+        placementStartEdge = edge;
+        Vector3 edgeVector = edge.end.transform.position - edge.begin.transform.position;
+        placementStartPosition = Vector3.Project(position, edgeVector);
+        float beginDist = Vector2.Distance(placementStartPosition, edge.begin.transform.position);
+        float endDist = Vector2.Distance(placementStartPosition, edge.end.transform.position);
+        if (beginDist < endDist)
+        {
+            if (beginDist < nodeEndRadius)
+            {
+                Debug.LogWarningFormat("Incorrect edge for node placement ({0}) - fix this - it should be its predecessor instead", edge);
+                edgePlacement = false;
+                return;
+            }
+            else
+            {
+                placementAtEndNode = false;
+            }
+        }
+        else
+        {
+            if (endDist < nodeEndRadius)
+            {
+                placementAtEndNode = true;
+                newEdgeBeginNode = edge.end;
+            }
+            else
+            {
+                placementAtEndNode = false;
+            }
+        }
+        edgePlacement = true;
         temporaryEdge.edgeStart.transform.position = placementStartPosition;
         currentPosition = placementStartPosition;
-        newEdgeType = startNode.edge.Type;
+        newEdgeType = edge.Type;
         temporaryEdge.gameObject.SetActive(true);
         temporaryEdge.UpdateEdgePosition();
         temporaryEdge.PlacementCorrectness = CheckPlacementCorrectness(false);
@@ -56,13 +80,13 @@ public class NodeSpawner : Singleton<NodeSpawner>
 
     public void StopNodePlacement()
     {
-        nodePlacement = false;
+        edgePlacement = false;
         temporaryEdge.gameObject.SetActive(false);
     }
 
     public void PlaceNode()
     {
-        if (!nodePlacement)
+        if (!edgePlacement)
         {
             return;
         }
@@ -70,11 +94,11 @@ public class NodeSpawner : Singleton<NodeSpawner>
         {
             return;
         }
-        if (placementStartNode is SubNode)
+        if (!placementAtEndNode)
         {
             SplitEdge();
         }
-        PlantNode startNode = (PlantNode)placementStartNode;
+        PlantNode startNode = newEdgeBeginNode;
         PlantNode newEndNode = Instantiate(nodePrefab).GetComponent<PlantNode>();
         newEndNode.transform.position = LayersManager.Instance.GetPositionOnLayer(currentPosition, LayersManager.LayerNames.Nodes);
         PlantEdge newEdge = CreateEdge(startNode, newEndNode);
@@ -82,24 +106,19 @@ public class NodeSpawner : Singleton<NodeSpawner>
         newEndNode.edge = newEdge;
         newEndNode.GetComponent<CircleRenderer>().Calculate();
         newEdge.Level = temporaryEdge.Level;
-        PlaceSubnodes(newEdge);
         StopNodePlacement();
     }
 
     private void SplitEdge()
     {
         PlantNode createdNode = Instantiate(nodePrefab).GetComponent<PlantNode>();
-        createdNode.transform.position = LayersManager.Instance.GetPositionOnLayer(placementStartNode.transform.position, LayersManager.LayerNames.Edges);
-        PlantEdge edgeBefore = CreateEdge(placementStartNode.edge.begin, createdNode);
-        edgeBefore.Level = placementStartNode.edge.Level;
-        PlantEdge edgeAfter = CreateEdge(createdNode, placementStartNode.edge.end);
-        edgeAfter.Level = placementStartNode.edge.Level;
+        createdNode.transform.position = LayersManager.Instance.GetPositionOnLayer(placementStartPosition, LayersManager.LayerNames.Edges);
+        PlantEdge edgeBefore = CreateEdge(placementStartEdge.begin, createdNode);
+        PlantEdge edgeAfter = CreateEdge(createdNode, placementStartEdge.end);
         createdNode.edge = edgeBefore;
         createdNode.successors = new List<PlantEdge>(new PlantEdge[] { edgeAfter });
-        TransferSubnodesToNewEdges(edgeBefore, edgeAfter);
-        Destroy(placementStartNode.edge.gameObject);
-        Destroy(placementStartNode.gameObject);
-        placementStartNode = createdNode;
+        Destroy(placementStartEdge.gameObject);
+        newEdgeBeginNode = createdNode;
         createdNode.GetComponent<CircleRenderer>().Calculate();
     }
 
@@ -107,64 +126,22 @@ public class NodeSpawner : Singleton<NodeSpawner>
     {
         PlantEdge edge = Instantiate(edgePrefab).GetComponent<PlantEdge>();
         edge.begin = begin;
-        edge.Type = placementStartNode.edge.Type;
+        edge.Type = placementStartEdge.Type;
         edge.end = end;
+        edge.Level = placementStartEdge.Level;
+        edge.gameObject.layer = LayerMask.NameToLayer("Edges");
         Vector3 startPosition = LayersManager.Instance.GetPositionOnLayer(edge.begin.transform.position, LayersManager.LayerNames.Edges);
         Vector3 endPosition = LayersManager.Instance.GetPositionOnLayer(edge.end.transform.position, LayersManager.LayerNames.Edges);
         edge.SetPositions(startPosition, endPosition);
+        edge.UpdateCollider();
         return edge;
-    }
-
-    private void TransferSubnodesToNewEdges(PlantEdge edgeBefore, PlantEdge edgeAfter)
-    {
-        float startNodeDistance = (placementStartNode.transform.position - placementStartNode.transform.position).magnitude;
-        foreach (SubNode subNode in placementStartNode.edge.subnodes)
-        {
-            if (subNode == placementStartNode)
-            {
-                continue;
-            }
-            float subnodeDistance = (subNode.transform.position - placementStartNode.transform.position).magnitude;
-            if (startNodeDistance > subnodeDistance)
-            {
-                edgeAfter.subnodes.Add(subNode);
-                subNode.edge = edgeAfter;
-            }
-            else
-            {
-                edgeBefore.subnodes.Add(subNode);
-                subNode.edge = edgeBefore;
-            }
-        }
-    }
-
-    private void PlaceSubnodes(PlantEdge edge)
-    {
-        Vector3 startPos = edge.begin.transform.position;
-        Vector3 endPos = edge.end.transform.position;
-        Vector3 edgeVector = endPos - startPos;
-        float length = edgeVector.magnitude;
-        edgeVector = edgeVector.normalized;
-        length -= offset;
-        int subnodesCount = (int)(length / distanceBetweenSubnodes);
-        float additionalOffset = length - distanceBetweenSubnodes * (subnodesCount - 1);
-        startPos += edgeVector * additionalOffset / 2;
-        startPos += edgeVector * offset / 2;
-        for (int i = 0; i < subnodesCount; i++)
-        {
-            SubNode subNode = Instantiate(subnodePrefab).GetComponent<SubNode>();
-            subNode.transform.position = LayersManager.Instance.GetPositionOnLayer(startPos + edgeVector * distanceBetweenSubnodes * i, LayersManager.LayerNames.Nodes);
-            subNode.edge = edge;
-            subNode.GetComponent<CircleRenderer>().Calculate();
-            edge.subnodes.Add(subNode);
-        }
     }
 
     private bool CheckPlacementCorrectness(bool displayMessages)
     {
         if ((currentPosition - placementStartPosition).magnitude < minEgdeLength)
         {
-            if(displayMessages)
+            if (displayMessages)
             {
                 Debug.Log("Plant edge too short");
             }
@@ -172,7 +149,7 @@ public class NodeSpawner : Singleton<NodeSpawner>
         }
         if (currentPosition.y < plantCore.transform.position.y && newEdgeType == PlantEdge.EdgeType.Stem)
         {
-            if(displayMessages)
+            if (displayMessages)
             {
                 Debug.Log("Stem cannot be underground");
             }
@@ -180,17 +157,17 @@ public class NodeSpawner : Singleton<NodeSpawner>
         }
         if (currentPosition.y > plantCore.transform.position.y && newEdgeType == PlantEdge.EdgeType.Root)
         {
-            if(displayMessages)
+            if (displayMessages)
             {
                 Debug.Log("Root have to be underground");
             }
             return false;
         }
-        foreach(Collider2D collider in temporaryEdge.collidesWith)
+        foreach (Collider2D collider in temporaryEdge.collidesWith)
         {
-            if(collider.gameObject != placementStartNode.gameObject)
+            if (placementAtEndNode && collider.gameObject != newEdgeBeginNode.gameObject)
             {
-                if(displayMessages)
+                if (displayMessages)
                 {
                     Debug.Log("Edge collides with something");
                 }
@@ -204,7 +181,7 @@ public class NodeSpawner : Singleton<NodeSpawner>
     {
         temporaryEdge.edgeEnd.transform.position = position;
         currentPosition = position;
-        if (nodePlacement)
+        if (edgePlacement)
         {
             temporaryEdge.UpdateEdgePosition();
             temporaryEdge.PlacementCorrectness = CheckPlacementCorrectness(false);

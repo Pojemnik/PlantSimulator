@@ -4,7 +4,7 @@ using UnityEngine;
 
 public interface IInteractive
 {
-    public abstract void OnInteraction();
+    public abstract void OnInteraction(Vector2 position);
     public abstract void OnHoverStart();
     public abstract void OnHoverEnd();
 }

@@ -18,9 +18,9 @@ public class PlantNodeBase : MonoBehaviour, IInteractive
         circle.ShowCircle = false;
     }
 
-    public void OnInteraction()
+    public void OnInteraction(Vector2 position)
     {
-        NodeSpawner.Instance.StartNodePlacement(this);
+        //EdgeSpawner.Instance.StartEdgePlacement(this);
     }
 
     public void OnHoverStart()

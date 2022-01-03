@@ -26,7 +26,7 @@ public class InputAdapter : MonoBehaviour
         currentTool = Tool.AddEdge;
         toolInteractionLayers = new Dictionary<Tool, int>
         {
-            {Tool.AddEdge, LayerMask.GetMask("Nodes") },
+            {Tool.AddEdge, LayerMask.GetMask("Edges") },
             {Tool.Upgrade, LayerMask.GetMask("Edges") },
             {Tool.AddLeaf, LayerMask.GetMask("Nodes") }
         };
@@ -54,7 +54,7 @@ public class InputAdapter : MonoBehaviour
         InputAction cancel = playerInput.actions.FindAction("Cancel", true);
         cancel.started += (args) =>
         {
-            NodeSpawner.Instance.StopNodePlacement();
+            EdgeSpawner.Instance.StopNodePlacement();
         };
         currentlyHovered = null;
     }
@@ -67,7 +67,7 @@ public class InputAdapter : MonoBehaviour
         }
         if (currentTool == Tool.AddEdge)
         {
-            NodeSpawner.Instance.StopNodePlacement();
+            EdgeSpawner.Instance.StopNodePlacement();
         }
         currentTool = tool;
     }
@@ -90,7 +90,7 @@ public class InputAdapter : MonoBehaviour
     private void DetectMouseHover(InputAction.CallbackContext ctx)
     {
         Vector3 position = Camera.main.ScreenToWorldPoint(ctx.ReadValue<Vector2>());
-        NodeSpawner.Instance.OnSelectionMove(position);
+        EdgeSpawner.Instance.OnSelectionMove(position);
         RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, toolInteractionLayers[Tool.AddEdge]);
         if (hit.transform != null)
         {
@@ -124,11 +124,11 @@ public class InputAdapter : MonoBehaviour
             case Tool.AddEdge:
                 if (hit.transform == null)
                 {
-                    NodeSpawner.Instance.PlaceNode();
+                    EdgeSpawner.Instance.PlaceNode();
                 }
                 else
                 {
-                    hit.transform.gameObject.GetComponent<IInteractive>()?.OnInteraction();
+                    hit.transform.gameObject.GetComponent<IInteractive>()?.OnInteraction(start);
                 }
                 break;
             default:
