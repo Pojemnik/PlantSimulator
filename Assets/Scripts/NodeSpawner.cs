@@ -49,6 +49,8 @@ public class NodeSpawner : Singleton<NodeSpawner>
         currentPosition = placementStartPosition;
         newEdgeType = startNode.edge.Type;
         temporaryEdge.gameObject.SetActive(true);
+        temporaryEdge.UpdateEdgePosition();
+        temporaryEdge.PlacementCorrectness = CheckPlacementCorrectness(false);
     }
 
     public void StopNodePlacement()
