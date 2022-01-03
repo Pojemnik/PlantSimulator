@@ -51,6 +51,7 @@ public class NodeSpawner : Singleton<NodeSpawner>
         temporaryEdge.gameObject.SetActive(true);
         temporaryEdge.UpdateEdgePosition();
         temporaryEdge.PlacementCorrectness = CheckPlacementCorrectness(false);
+        temporaryEdge.Level = PlantConfigManager.Instance.defaultEgdeWidths[newEdgeType];
     }
 
     public void StopNodePlacement()
@@ -80,6 +81,7 @@ public class NodeSpawner : Singleton<NodeSpawner>
         startNode.successors.Add(newEdge);
         newEndNode.edge = newEdge;
         newEndNode.GetComponent<CircleRenderer>().Calculate();
+        newEdge.Level = temporaryEdge.Level;
         PlaceSubnodes(newEdge);
         StopNodePlacement();
     }
@@ -89,7 +91,9 @@ public class NodeSpawner : Singleton<NodeSpawner>
         PlantNode createdNode = Instantiate(nodePrefab).GetComponent<PlantNode>();
         createdNode.transform.position = LayersManager.Instance.GetPositionOnLayer(placementStartNode.transform.position, LayersManager.LayerNames.Edges);
         PlantEdge edgeBefore = CreateEdge(placementStartNode.edge.begin, createdNode);
+        edgeBefore.Level = placementStartNode.edge.Level;
         PlantEdge edgeAfter = CreateEdge(createdNode, placementStartNode.edge.end);
+        edgeAfter.Level = placementStartNode.edge.Level;
         createdNode.edge = edgeBefore;
         createdNode.successors = new List<PlantEdge>(new PlantEdge[] { edgeAfter });
         TransferSubnodesToNewEdges(edgeBefore, edgeAfter);

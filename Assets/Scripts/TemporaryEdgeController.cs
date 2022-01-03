@@ -30,6 +30,17 @@ public class TemporaryEdgeController : MonoBehaviour
         }
     }
 
+    private int level;
+    public int Level
+    {
+        get => level;
+        set
+        {
+            level = value;
+            edge.Level = level;
+        }
+    }
+
     private void Awake()
     {
         collider = GetComponent<PolygonCollider2D>();
