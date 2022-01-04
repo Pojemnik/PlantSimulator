@@ -40,7 +40,8 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
     {
         placementStartEdge = edge;
         Vector3 edgeVector = edge.end.transform.position - edge.begin.transform.position;
-        placementStartPosition = Vector3.Project(position, edgeVector);
+        placementStartPosition = Vector3.Project((Vector3)position - edge.begin.transform.position, edgeVector);
+        placementStartPosition += (Vector2)edge.begin.transform.position;
         float beginDist = Vector2.Distance(placementStartPosition, edge.begin.transform.position);
         float endDist = Vector2.Distance(placementStartPosition, edge.end.transform.position);
         if (beginDist < endDist)
