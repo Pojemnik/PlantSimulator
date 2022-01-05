@@ -103,11 +103,17 @@ public class PlantEdge : MonoBehaviour, IInteractive
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        TriggerEnter?.Invoke(this, collision);
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Edges"))
+        {
+            TriggerEnter?.Invoke(this, collision);
+        }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        TriggerExit?.Invoke(this, collision);
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Edges"))
+        {
+            TriggerExit?.Invoke(this, collision);
+        }
     }
 }

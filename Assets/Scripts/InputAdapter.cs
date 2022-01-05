@@ -122,7 +122,7 @@ public class InputAdapter : MonoBehaviour
         switch (currentTool)
         {
             case Tool.AddEdge:
-                if (hit.transform == null)
+                if (hit.transform == null || hit.transform.gameObject == EdgeSpawner.Instance.TemporaryEdge)
                 {
                     EdgeSpawner.Instance.PlaceNode();
                 }

@@ -9,12 +9,21 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
     private PlantNode plantCore;
     [SerializeField]
     private TemporaryEdgeController temporaryEdge;
+    public GameObject TemporaryEdge
+    {
+        get
+        {
+            return temporaryEdge.gameObject;
+        }
+    }
 
     [Header("Config")]
     [SerializeField]
     private float minEgdeLength;
     [SerializeField]
     private float nodeEndRadius;
+    [SerializeField]
+    private float minAngle;
 
     [Header("Prefabs")]
     [SerializeField]
@@ -164,9 +173,20 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
             }
             return false;
         }
+        Vector2 newEdgeVector = currentPosition - placementStartPosition;
+        Vector2 startEdgeVector = (Vector2)placementStartEdge.end.transform.position - placementStartPosition;
+        float angle = Vector2.Angle(newEdgeVector, startEdgeVector);
+        if(Mathf.Min(angle, 180 - angle) < minAngle)
+        {
+            if (displayMessages)
+            {
+                Debug.Log("Angle between the new and the old enge is too small");
+            }
+            return false;
+        }
         foreach (Collider2D collider in temporaryEdge.collidesWith)
         {
-            if (placementAtEndNode && collider.gameObject != newEdgeBeginNode.gameObject)
+            if (collider.gameObject != placementStartEdge.gameObject)
             {
                 if (displayMessages)
                 {
