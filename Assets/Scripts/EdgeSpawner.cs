@@ -38,16 +38,31 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
     private PlantEdge.EdgeType newEdgeType;
     private PlantEdge placementStartEdge;
     private PlantNode newEdgeBeginNode;
+    private HashSet<Collider2D> startCollision;
 
     private void Start()
     {
         edgePlacement = false;
         temporaryEdge.gameObject.SetActive(false);
+        startCollision = new HashSet<Collider2D>();
     }
 
     public void StartEdgePlacement(Vector2 position, PlantEdge edge)
     {
         placementStartEdge = edge;
+        TestAndInitPlacementAtEndNode(position, edge);
+        edgePlacement = true;
+        temporaryEdge.edgeStart.transform.position = placementStartPosition;
+        currentPosition = placementStartPosition;
+        newEdgeType = placementStartEdge.Type;
+        temporaryEdge.gameObject.SetActive(true);
+        temporaryEdge.UpdateEdgePosition();
+        temporaryEdge.PlacementCorrectness = CheckPlacementCorrectness(false);
+        temporaryEdge.Level = PlantConfigManager.Instance.defaultEgdeWidths[newEdgeType];
+    }
+
+    private void TestAndInitPlacementAtEndNode(Vector2 position, PlantEdge edge)
+    {
         Vector3 edgeVector = edge.end.transform.position - edge.begin.transform.position;
         placementStartPosition = Vector3.Project((Vector3)position - edge.begin.transform.position, edgeVector);
         placementStartPosition += (Vector2)edge.begin.transform.position;
@@ -57,9 +72,11 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
         {
             if (beginDist < nodeEndRadius)
             {
-                Debug.LogWarningFormat("Incorrect edge for node placement ({0}) - fix this - it should be its predecessor instead", edge);
-                edgePlacement = false;
-                return;
+                placementStartEdge = edge.begin.edge;
+                placementAtEndNode = true;
+                newEdgeBeginNode = edge.begin;
+                placementStartPosition = newEdgeBeginNode.transform.position;
+                Debug.LogFormat("Placement at the end of {0} - {1} (form begining)", placementStartEdge, newEdgeBeginNode);
             }
             else
             {
@@ -72,20 +89,14 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
             {
                 placementAtEndNode = true;
                 newEdgeBeginNode = edge.end;
+                placementStartPosition = newEdgeBeginNode.transform.position;
+                Debug.LogFormat("Placement at the end of {0} - {1}", placementStartEdge, newEdgeBeginNode);
             }
             else
             {
                 placementAtEndNode = false;
             }
         }
-        edgePlacement = true;
-        temporaryEdge.edgeStart.transform.position = placementStartPosition;
-        currentPosition = placementStartPosition;
-        newEdgeType = edge.Type;
-        temporaryEdge.gameObject.SetActive(true);
-        temporaryEdge.UpdateEdgePosition();
-        temporaryEdge.PlacementCorrectness = CheckPlacementCorrectness(false);
-        temporaryEdge.Level = PlantConfigManager.Instance.defaultEgdeWidths[newEdgeType];
     }
 
     public void StopNodePlacement()
@@ -174,9 +185,17 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
             return false;
         }
         Vector2 newEdgeVector = currentPosition - placementStartPosition;
-        Vector2 startEdgeVector = (Vector2)placementStartEdge.end.transform.position - placementStartPosition;
+        Vector2 startEdgeVector;
+        if (placementAtEndNode)
+        {
+            startEdgeVector = (Vector2)placementStartEdge.end.transform.position - (Vector2)placementStartEdge.begin.transform.position;
+        }
+        else
+        {
+            startEdgeVector = (Vector2)placementStartEdge.end.transform.position - placementStartPosition;
+        }
         float angle = Vector2.Angle(newEdgeVector, startEdgeVector);
-        if(Mathf.Min(angle, 180 - angle) < minAngle)
+        if((placementAtEndNode && 180 - angle < minAngle) || (!placementAtEndNode && Mathf.Min(angle, 180 - angle) < minAngle))
         {
             if (displayMessages)
             {
