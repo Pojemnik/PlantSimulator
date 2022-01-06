@@ -59,6 +59,13 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
         temporaryEdge.UpdateEdgePosition();
         temporaryEdge.PlacementCorrectness = CheckPlacementCorrectness(false);
         temporaryEdge.Level = PlantConfigManager.Instance.defaultEgdeWidths[newEdgeType];
+        float testZoneRadius = PlantConfigManager.Instance.edgeWidthsOnLevels[placementStartEdge.Level];
+        int layerMask = LayerMask.GetMask("Edges");
+        startCollision = new HashSet<Collider2D>(Physics2D.OverlapCircleAll(placementStartPosition, testZoneRadius, layerMask));
+        foreach(Collider2D col in startCollision)
+        {
+            Debug.Log(col.gameObject.name);
+        }
     }
 
     private void TestAndInitPlacementAtEndNode(Vector2 position, PlantEdge edge)
@@ -195,24 +202,21 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
             startEdgeVector = (Vector2)placementStartEdge.end.transform.position - placementStartPosition;
         }
         float angle = Vector2.Angle(newEdgeVector, startEdgeVector);
-        if((placementAtEndNode && 180 - angle < minAngle) || (!placementAtEndNode && Mathf.Min(angle, 180 - angle) < minAngle))
+        if ((placementAtEndNode && 180 - angle < minAngle) || (!placementAtEndNode && Mathf.Min(angle, 180 - angle) < minAngle))
         {
             if (displayMessages)
             {
-                Debug.Log("Angle between the new and the old enge is too small");
+                Debug.Log("Angle between the new and the old edge is too small");
             }
             return false;
         }
-        foreach (Collider2D collider in temporaryEdge.collidesWith)
+        if (!temporaryEdge.collidesWith.IsSubsetOf(startCollision))
         {
-            if (collider.gameObject != placementStartEdge.gameObject)
+            if (displayMessages)
             {
-                if (displayMessages)
-                {
-                    Debug.Log("Edge collides with something");
-                }
-                return false;
+                Debug.Log("Edge collides with something");
             }
+            return false;
         }
         return true;
     }
