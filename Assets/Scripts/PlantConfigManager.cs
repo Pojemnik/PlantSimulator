@@ -21,6 +21,24 @@ public class PlantConfigManager : Singleton<PlantConfigManager>
     public List<float> edgeWidthsOnLevels;
     public Dictionary<PlantEdge.EdgeType, int> defaultEgdeWidths;
 
+    private int nodeCounter = 0;
+    public int NodeCounter
+    {
+        get
+        {
+            return nodeCounter++;
+        }
+    }
+    
+    private int edgeCounter = 0;
+    public int EdgeCounter
+    {
+        get
+        {
+            return edgeCounter++;
+        }
+    }
+
     private void Awake()
     {
         gradients = new Dictionary<PlantEdge.EdgeType, Gradient>

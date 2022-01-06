@@ -63,6 +63,11 @@ public class PlantEdge : MonoBehaviour, IInteractive
         collider = GetComponent<PolygonCollider2D>();
     }
 
+    private void Start()
+    {
+        gameObject.name = string.Format("Plant edge {0}", PlantConfigManager.Instance.EdgeCounter);
+    }
+
     public void SetPositions(Vector3 beginPos, Vector3 endPos)
     {
         lineRenderer.SetPositions(new Vector3[] { beginPos, endPos });
@@ -71,14 +76,16 @@ public class PlantEdge : MonoBehaviour, IInteractive
     public void UpdateCollider()
     {
         float width = lineRenderer.startWidth;
-        Vector2 normal = begin.transform.position - end.transform.position;
-        normal = Vector2.Perpendicular(normal).normalized;
+        Vector2 parralel = (begin.transform.position - end.transform.position).normalized;
+        Vector2 normal = Vector2.Perpendicular(parralel).normalized;
         Vector2[] colliderPoints = new Vector2[]
         {
+            begin.transform.position - (Vector3)normal * width/2,
+            begin.transform.position + (Vector3)parralel * width/2,
             begin.transform.position + (Vector3)normal * width/2,
             end.transform.position + (Vector3)normal * width/2,
-            end.transform.position - (Vector3)normal * width/2,
-            begin.transform.position - (Vector3)normal * width/2
+            end.transform.position - (Vector3)parralel * width/2,
+            end.transform.position - (Vector3)normal * width/2
         };
         collider.points = colliderPoints;
     }

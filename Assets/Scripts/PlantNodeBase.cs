@@ -13,7 +13,7 @@ public class PlantNodeBase : MonoBehaviour, IInteractive
         circle = GetComponent<CircleRenderer>();
     }
 
-    private void Start()
+    protected virtual void Start()
     {
         circle.ShowCircle = false;
     }

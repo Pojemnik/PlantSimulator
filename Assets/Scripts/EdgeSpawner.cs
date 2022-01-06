@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class EdgeSpawner : Singleton<EdgeSpawner>
 {
@@ -39,18 +40,33 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
     private PlantEdge placementStartEdge;
     private PlantNode newEdgeBeginNode;
     private HashSet<Collider2D> startCollision;
+    private List<(PlantEdge, CollidingEdgePart)> collidingEdgesInfo;
+
+    private enum CollidingEdgePart
+    {
+        Begin,
+        End
+    }
 
     private void Start()
     {
         edgePlacement = false;
         temporaryEdge.gameObject.SetActive(false);
         startCollision = new HashSet<Collider2D>();
+        collidingEdgesInfo = new List<(PlantEdge, CollidingEdgePart)>();
     }
 
     public void StartEdgePlacement(Vector2 position, PlantEdge edge)
     {
+        if (edgePlacement)
+        {
+            return;
+        }
         placementStartEdge = edge;
-        TestAndInitPlacementAtEndNode(position, edge);
+        Vector3 edgeVector = edge.end.transform.position - edge.begin.transform.position;
+        placementStartPosition = Vector3.Project((Vector3)position - edge.begin.transform.position, edgeVector);
+        placementStartPosition += (Vector2)edge.begin.transform.position;
+        TestAndInitPlacementAtEndNode();
         edgePlacement = true;
         temporaryEdge.edgeStart.transform.position = placementStartPosition;
         currentPosition = placementStartPosition;
@@ -59,50 +75,75 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
         temporaryEdge.UpdateEdgePosition();
         temporaryEdge.PlacementCorrectness = CheckPlacementCorrectness(false);
         temporaryEdge.Level = PlantConfigManager.Instance.defaultEgdeWidths[newEdgeType];
+    }
+
+    private void TestAndInitPlacementAtEndNode()
+    {
+        collidingEdgesInfo.Clear();
         float testZoneRadius = PlantConfigManager.Instance.edgeWidthsOnLevels[placementStartEdge.Level];
         int layerMask = LayerMask.GetMask("Edges");
         startCollision = new HashSet<Collider2D>(Physics2D.OverlapCircleAll(placementStartPosition, testZoneRadius, layerMask));
-        foreach(Collider2D col in startCollision)
+        foreach (Collider2D col in startCollision)
         {
             Debug.Log(col.gameObject.name);
         }
-    }
-
-    private void TestAndInitPlacementAtEndNode(Vector2 position, PlantEdge edge)
-    {
-        Vector3 edgeVector = edge.end.transform.position - edge.begin.transform.position;
-        placementStartPosition = Vector3.Project((Vector3)position - edge.begin.transform.position, edgeVector);
-        placementStartPosition += (Vector2)edge.begin.transform.position;
-        float beginDist = Vector2.Distance(placementStartPosition, edge.begin.transform.position);
-        float endDist = Vector2.Distance(placementStartPosition, edge.end.transform.position);
-        if (beginDist < endDist)
+        HashSet<PlantNode> closestNodesOnCollidingEdges = new HashSet<PlantNode>();
+        if (startCollision.Count > 1)
         {
-            if (beginDist < nodeEndRadius)
+            HashSet<PlantEdge> collidingEdges = startCollision.Select((e) => e.gameObject.GetComponent<PlantEdge>()).ToHashSet();
+            foreach (PlantEdge collidingEdge in collidingEdges)
             {
-                placementStartEdge = edge.begin.edge;
-                placementAtEndNode = true;
-                newEdgeBeginNode = edge.begin;
-                placementStartPosition = newEdgeBeginNode.transform.position;
-                Debug.LogFormat("Placement at the end of {0} - {1} (form begining)", placementStartEdge, newEdgeBeginNode);
+                float beginDist = Vector2.Distance(collidingEdge.begin.transform.position, placementStartPosition);
+                float endDist = Vector2.Distance(collidingEdge.end.transform.position, placementStartPosition);
+                if (beginDist < endDist)
+                {
+                    closestNodesOnCollidingEdges.Add(collidingEdge.begin);
+                    collidingEdgesInfo.Add((collidingEdge, CollidingEdgePart.Begin));
+                }
+                else
+                {
+                    closestNodesOnCollidingEdges.Add(collidingEdge.end);
+                    collidingEdgesInfo.Add((collidingEdge, CollidingEdgePart.End));
+                }
             }
-            else
+            if (closestNodesOnCollidingEdges.Count != 1)
             {
-                placementAtEndNode = false;
+                Debug.LogError("Incorrect start nodes of colliding edges");
+                foreach (PlantNode node in closestNodesOnCollidingEdges)
+                {
+                    Debug.Log(node.gameObject.name);
+                }
+                return;
             }
         }
         else
         {
-            if (endDist < nodeEndRadius)
+            if (startCollision.Count == 1)
             {
-                placementAtEndNode = true;
-                newEdgeBeginNode = edge.end;
-                placementStartPosition = newEdgeBeginNode.transform.position;
-                Debug.LogFormat("Placement at the end of {0} - {1}", placementStartEdge, newEdgeBeginNode);
+                PlantEdge collidingEdge = startCollision.ElementAt(0).GetComponent<PlantEdge>();
+                float endDist = Vector2.Distance(collidingEdge.end.transform.position, placementStartPosition);
+                if (endDist < testZoneRadius)
+                {
+                    closestNodesOnCollidingEdges.Add(collidingEdge.end);
+                    collidingEdgesInfo.Add((collidingEdge, CollidingEdgePart.End));
+                }
             }
             else
             {
-                placementAtEndNode = false;
+                Debug.LogError("No collision found at node placement. This should never happen");
             }
+            return;
+        }
+        //Place at the end node
+        Debug.LogFormat("End node placement");
+        PlantNode startNode = closestNodesOnCollidingEdges.ElementAt(0);
+        placementAtEndNode = true;
+        newEdgeBeginNode = startNode;
+        placementStartPosition = newEdgeBeginNode.transform.position;
+        Debug.LogFormat("Placement at the end of {0} - {1}", placementStartEdge, newEdgeBeginNode);
+        foreach (var x in collidingEdgesInfo)
+        {
+            Debug.Log(x);
         }
     }
 
