@@ -79,10 +79,19 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
 
     private void TestAndInitPlacementAtEndNode()
     {
-        placementAtEndNode = false;
         collidingEdgesInfo.Clear();
         float testZoneRadius = PlantConfigManager.Instance.edgeWidthsOnLevels[placementStartEdge.Level] / 2;
         GetStartCollision(testZoneRadius);
+        HashSet<PlantNode> closestNodesOnCollidingEdges = TestPlacementAtEndNode(testZoneRadius);
+        if (placementAtEndNode)
+        {
+            InitPlacementAtEndNode(closestNodesOnCollidingEdges.ElementAt(0));
+        }
+    }
+
+    private HashSet<PlantNode> TestPlacementAtEndNode(float testZoneRadius)
+    {
+        placementAtEndNode = false;
         HashSet<PlantNode> closestNodesOnCollidingEdges = new HashSet<PlantNode>();
         if (startCollision.Count > 1)
         {
@@ -102,14 +111,17 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
                     collidingEdgesInfo.Add((collidingEdge, CollidingEdgePart.End));
                 }
             }
-            if (closestNodesOnCollidingEdges.Count != 1)
+            if (closestNodesOnCollidingEdges.Count == 1)
+            {
+                placementAtEndNode = true;
+            }
+            else
             {
                 Debug.LogError("Incorrect start nodes of colliding edges");
                 foreach (PlantNode node in closestNodesOnCollidingEdges)
                 {
                     Debug.Log(node.gameObject.name);
                 }
-                return;
             }
         }
         else
@@ -122,30 +134,20 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
                 {
                     closestNodesOnCollidingEdges.Add(collidingEdge.end);
                     collidingEdgesInfo.Add((collidingEdge, CollidingEdgePart.End));
-                }
-                else
-                {
-                    return;
+                    placementAtEndNode = true;
                 }
             }
             else
             {
                 Debug.LogError("No collision found at node placement. This should never happen");
-                return;
             }
         }
-        InitPlacementAtEndNode(closestNodesOnCollidingEdges.ElementAt(0));
+        return closestNodesOnCollidingEdges;
     }
-
-    //private (bool, HashSet<PlantNode>) TestPlacementAtEndNode()
-    //{
-    //
-    //}
 
     private void InitPlacementAtEndNode(PlantNode startNode)
     {
         Debug.LogFormat("End node placement");
-        placementAtEndNode = true;
         newEdgeBeginNode = startNode;
         placementStartPosition = newEdgeBeginNode.transform.position;
         Debug.LogFormat("Placement at the end of {0} - {1}", placementStartEdge, newEdgeBeginNode);
@@ -259,11 +261,10 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
             return false;
         }
         Vector2 newEdgeVector = currentNewEndNodePosition - placementStartPosition;
-        if (!placementAtEndNode)
+        if (placementAtEndNode)
         {
-            Vector2 startEdgeVector = (Vector2)placementStartEdge.end.transform.position - placementStartPosition;
-            float angle = Vector2.Angle(newEdgeVector, startEdgeVector);
-            if (Mathf.Min(angle, 180 - angle) < minAngle)
+            bool angleCheck = AngleCheckAtEndNode(newEdgeVector);
+            if (!angleCheck)
             {
                 if (displayMessages)
                 {
@@ -274,26 +275,43 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
         }
         else
         {
-            foreach ((PlantEdge edge, CollidingEdgePart part) in collidingEdgesInfo)
+            bool angleCheck = AngleCheckAtRegularNode(newEdgeVector);
+            if (!angleCheck)
             {
-                Vector2 startEdgeVector;
-                if (part == CollidingEdgePart.Begin)
+                if (displayMessages)
                 {
-                    startEdgeVector = (Vector2)edge.end.transform.position - (Vector2)edge.begin.transform.position;
+                    Debug.Log("Angle between the new and the old edge is too small");
                 }
-                else
-                {
-                    startEdgeVector = (Vector2)edge.begin.transform.position - (Vector2)edge.end.transform.position;
-                }
-                float angle = Vector2.Angle(newEdgeVector, startEdgeVector);
-                if (angle < minAngle)
-                {
-                    if (displayMessages)
-                    {
-                        Debug.Log("Angle between the new and the old edge is too small");
-                    }
-                    return false;
-                }
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private bool AngleCheckAtRegularNode(Vector2 newEdgeVector)
+    {
+        Vector2 startEdgeVector = (Vector2)placementStartEdge.end.transform.position - placementStartPosition;
+        float angle = Vector2.Angle(newEdgeVector, startEdgeVector);
+        return Mathf.Min(angle, 180 - angle) >= minAngle;
+    }
+
+    private bool AngleCheckAtEndNode(Vector2 newEdgeVector)
+    {
+        foreach ((PlantEdge edge, CollidingEdgePart part) in collidingEdgesInfo)
+        {
+            Vector2 startEdgeVector;
+            if (part == CollidingEdgePart.Begin)
+            {
+                startEdgeVector = (Vector2)edge.end.transform.position - (Vector2)edge.begin.transform.position;
+            }
+            else
+            {
+                startEdgeVector = (Vector2)edge.begin.transform.position - (Vector2)edge.end.transform.position;
+            }
+            float angle = Vector2.Angle(newEdgeVector, startEdgeVector);
+            if (angle < minAngle)
+            {
+                return false;
             }
         }
         return true;
