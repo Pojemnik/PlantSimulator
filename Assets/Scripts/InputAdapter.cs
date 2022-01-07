@@ -10,7 +10,6 @@ public class InputAdapter : MonoBehaviour
     private InputAction moveCameraDrag;
     private bool dragCamera;
     private Vector2 origin;
-    private IInteractive currentlyHovered;
     private Tool currentTool;
     private Dictionary<Tool, int> toolInteractionLayers;
 
@@ -56,18 +55,14 @@ public class InputAdapter : MonoBehaviour
         {
             EdgeSpawner.Instance.StopNodePlacement();
         };
-        currentlyHovered = null;
     }
 
     private void ChangeTool(Tool tool)
     {
+        EdgeSpawner.Instance.StopNodePlacement();
         if (tool == currentTool)
         {
             return;
-        }
-        if (currentTool == Tool.AddEdge)
-        {
-            EdgeSpawner.Instance.StopNodePlacement();
         }
         currentTool = tool;
     }
@@ -90,27 +85,21 @@ public class InputAdapter : MonoBehaviour
     private void DetectMouseHover(InputAction.CallbackContext ctx)
     {
         Vector3 position = Camera.main.ScreenToWorldPoint(ctx.ReadValue<Vector2>());
-        EdgeSpawner.Instance.OnSelectionMove(position);
-        RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, toolInteractionLayers[Tool.AddEdge]);
-        if (hit.transform != null)
+        switch (currentTool)
         {
-            IInteractive interactive = hit.transform.gameObject.GetComponent<IInteractive>();
-            if (interactive != null)
-            {
-                currentlyHovered?.OnHoverEnd();
-                currentlyHovered = interactive;
-                currentlyHovered.OnHoverStart();
-            }
-            else
-            {
-                currentlyHovered?.OnHoverEnd();
-                currentlyHovered = null;
-            }
-        }
-        else
-        {
-            currentlyHovered?.OnHoverEnd();
-            currentlyHovered = null;
+            case Tool.AddEdge:
+                EdgeSpawner.Instance.OnSelectionMove(position);
+                break;
+            case Tool.Upgrade:
+                RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, toolInteractionLayers[Tool.AddEdge]);
+                PlantEdge edge = hit.transform?.gameObject.GetComponent<PlantEdge>();
+                if (edge != null)
+                {
+                    //Show upgrade effect
+                }
+                break;
+            default:
+                break;
         }
     }
 
@@ -128,8 +117,15 @@ public class InputAdapter : MonoBehaviour
                 }
                 else
                 {
-                    hit.transform.gameObject.GetComponent<IInteractive>()?.OnInteraction(start);
+                    PlantEdge edge = hit.transform.gameObject.GetComponent<PlantEdge>();
+                    if (edge != null)
+                    {
+                        EdgeSpawner.Instance.StartEdgePlacement(start, edge);
+                    }
                 }
+                break;
+            case Tool.Upgrade:
+                //Upgrade
                 break;
             default:
                 Debug.Log("Incorrect tool");

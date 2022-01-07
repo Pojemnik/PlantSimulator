@@ -7,8 +7,6 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
 {
     [Header("References")]
     [SerializeField]
-    private PlantNode plantCore;
-    [SerializeField]
     private TemporaryEdgeController temporaryEdge;
     public GameObject TemporaryEdge
     {
@@ -236,7 +234,7 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
             }
             return false;
         }
-        if (currentNewEndNodePosition.y < plantCore.transform.position.y && newEdgeType == PlantEdge.EdgeType.Stem)
+        if (currentNewEndNodePosition.y < PlantConfigManager.Instance.minStemHeight && newEdgeType == PlantEdge.EdgeType.Stem)
         {
             if (displayMessages)
             {
@@ -244,7 +242,7 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
             }
             return false;
         }
-        if (currentNewEndNodePosition.y > plantCore.transform.position.y && newEdgeType == PlantEdge.EdgeType.Root)
+        if (currentNewEndNodePosition.y > PlantConfigManager.Instance.maxRootHeight && newEdgeType == PlantEdge.EdgeType.Root)
         {
             if (displayMessages)
             {

@@ -13,6 +13,8 @@ public class PlantConfigManagerEditor : Editor
     private SerializedProperty defaultStemWidthIndex;
     private SerializedProperty defaultRootWidthIndex;
     private SerializedProperty defaultWoodWidthIndex;
+    private SerializedProperty minStemHeight;
+    private SerializedProperty maxRootHeight;
 
     private void OnEnable()
     {
@@ -23,6 +25,8 @@ public class PlantConfigManagerEditor : Editor
         defaultRootWidthIndex = serializedObject.FindProperty("defaultRootWidthIndex");
         defaultWoodWidthIndex = serializedObject.FindProperty("defaultWoodWidthIndex");
         widths = serializedObject.FindProperty("edgeWidthsOnLevels");
+        minStemHeight = serializedObject.FindProperty("minStemHeight");
+        maxRootHeight = serializedObject.FindProperty("maxRootHeight");
     }
 
     public override void OnInspectorGUI()
@@ -35,6 +39,8 @@ public class PlantConfigManagerEditor : Editor
         EditorGUILayout.PropertyField(defaultRootWidthIndex);
         EditorGUILayout.PropertyField(defaultWoodWidthIndex);
         EditorGUILayout.PropertyField(widths);
+        EditorGUILayout.PropertyField(minStemHeight);
+        EditorGUILayout.PropertyField(maxRootHeight);
         serializedObject.ApplyModifiedProperties();
     }
 }

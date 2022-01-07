@@ -20,6 +20,8 @@ public class PlantConfigManager : Singleton<PlantConfigManager>
     public Dictionary<PlantEdge.EdgeType, Gradient> gradients;
     public List<float> edgeWidthsOnLevels;
     public Dictionary<PlantEdge.EdgeType, int> defaultEgdeWidths;
+    public float minStemHeight;
+    public float maxRootHeight;
 
     private int nodeCounter = 0;
     public int NodeCounter

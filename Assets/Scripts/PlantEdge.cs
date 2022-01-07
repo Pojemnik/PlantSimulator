@@ -4,7 +4,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(PolygonCollider2D))]
 [RequireComponent(typeof(LineRenderer))]
-public class PlantEdge : MonoBehaviour, IInteractive
+public class PlantEdge : MonoBehaviour
 {
     public enum EdgeType
     {
@@ -93,19 +93,6 @@ public class PlantEdge : MonoBehaviour, IInteractive
     public void SetGradient(Gradient gradient)
     {
         lineRenderer.colorGradient = gradient;
-    }
-
-    public void OnInteraction(Vector2 position)
-    {
-        EdgeSpawner.Instance.StartEdgePlacement(position, this);
-    }
-
-    public void OnHoverStart()
-    {
-    }
-
-    public void OnHoverEnd()
-    {
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
