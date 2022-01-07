@@ -127,12 +127,16 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
                     closestNodesOnCollidingEdges.Add(collidingEdge.end);
                     collidingEdgesInfo.Add((collidingEdge, CollidingEdgePart.End));
                 }
+                else
+                {
+                    return;
+                }
             }
             else
             {
                 Debug.LogError("No collision found at node placement. This should never happen");
+                return;
             }
-            return;
         }
         //Place at the end node
         Debug.LogFormat("End node placement");
@@ -232,25 +236,6 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
             }
             return false;
         }
-        Vector2 newEdgeVector = currentPosition - placementStartPosition;
-        Vector2 startEdgeVector;
-        if (placementAtEndNode)
-        {
-            startEdgeVector = (Vector2)placementStartEdge.end.transform.position - (Vector2)placementStartEdge.begin.transform.position;
-        }
-        else
-        {
-            startEdgeVector = (Vector2)placementStartEdge.end.transform.position - placementStartPosition;
-        }
-        float angle = Vector2.Angle(newEdgeVector, startEdgeVector);
-        if ((placementAtEndNode && 180 - angle < minAngle) || (!placementAtEndNode && Mathf.Min(angle, 180 - angle) < minAngle))
-        {
-            if (displayMessages)
-            {
-                Debug.Log("Angle between the new and the old edge is too small");
-            }
-            return false;
-        }
         if (!temporaryEdge.collidesWith.IsSubsetOf(startCollision))
         {
             if (displayMessages)
@@ -258,6 +243,44 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
                 Debug.Log("Edge collides with something");
             }
             return false;
+        }
+        Vector2 newEdgeVector = currentPosition - placementStartPosition;
+        if (!placementAtEndNode)
+        {
+            Vector2 startEdgeVector = (Vector2)placementStartEdge.end.transform.position - placementStartPosition;
+            float angle = Vector2.Angle(newEdgeVector, startEdgeVector);
+            if (!placementAtEndNode && Mathf.Min(angle, 180 - angle) < minAngle)
+            {
+                if (displayMessages)
+                {
+                    Debug.Log("Angle between the new and the old edge is too small");
+                }
+                return false;
+            }
+        }
+        else
+        {
+            foreach ((PlantEdge edge, CollidingEdgePart part) in collidingEdgesInfo)
+            {
+                Vector2 startEdgeVector;
+                if (part == CollidingEdgePart.Begin)
+                {
+                    startEdgeVector = (Vector2)edge.end.transform.position - (Vector2)edge.begin.transform.position;
+                }
+                else
+                {
+                    startEdgeVector = (Vector2)edge.begin.transform.position - (Vector2)edge.end.transform.position;
+                }
+                float angle = Vector2.Angle(newEdgeVector, startEdgeVector);
+                if (angle < minAngle)
+                {
+                    if (displayMessages)
+                    {
+                        Debug.Log("Angle between the new and the old edge is too small");
+                    }
+                    return false;
+                }
+            }
         }
         return true;
     }
