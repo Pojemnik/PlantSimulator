@@ -66,7 +66,7 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
         placementStartPosition += (Vector2)edge.begin.transform.position;
         TestAndInitPlacementAtEndNode();
         edgePlacement = true;
-        temporaryEdge.edgeStart.transform.position = placementStartPosition;
+        temporaryEdge.edge.begin.transform.position = placementStartPosition;
         currentNewEndNodePosition = placementStartPosition;
         newEdgeType = placementStartEdge.Type;
         temporaryEdge.gameObject.SetActive(true);
@@ -145,24 +145,14 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
 
     private void InitPlacementAtEndNode(PlantNode startNode)
     {
-        Debug.LogFormat("End node placement");
         newEdgeBeginNode = startNode;
         placementStartPosition = newEdgeBeginNode.transform.position;
-        Debug.LogFormat("Placement at the end of {0} - {1}", placementStartEdge, newEdgeBeginNode);
-        foreach (var x in collidingEdgesInfo)
-        {
-            Debug.Log(x);
-        }
     }
 
     private void GetStartCollision(float testZoneRadius)
     {
         int layerMask = LayerMask.GetMask("Edges");
         startCollision = new HashSet<Collider2D>(Physics2D.OverlapCircleAll(placementStartPosition, testZoneRadius, layerMask));
-        foreach (Collider2D col in startCollision)
-        {
-            Debug.Log(col.gameObject.name);
-        }
     }
 
     public void StopNodePlacement()
@@ -317,7 +307,7 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
 
     public void OnSelectionMove(Vector2 position)
     {
-        temporaryEdge.edgeEnd.transform.position = position;
+        temporaryEdge.edge.end.transform.position = position;
         currentNewEndNodePosition = position;
         if (edgePlacement)
         {

@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(Collider2D))]
 [RequireComponent(typeof(CircleRenderer))]
 public class PlantNodeBase : MonoBehaviour, IInteractive
 {

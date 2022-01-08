@@ -8,16 +8,12 @@ public class TemporaryEdgeControllerEditor : Editor
 {
     private SerializedProperty defaultGradient;
     private SerializedProperty errorGradient;
-    private SerializedProperty edgeStart;
-    private SerializedProperty edgeEnd;
     private SerializedProperty edge;
 
     private void OnEnable()
     {
         defaultGradient = serializedObject.FindProperty("defaultGradient");
         errorGradient = serializedObject.FindProperty("errorGradient");
-        edgeStart = serializedObject.FindProperty("edgeStart");
-        edgeEnd = serializedObject.FindProperty("edgeEnd");
         edge = serializedObject.FindProperty("edge");
     }
 
@@ -26,8 +22,6 @@ public class TemporaryEdgeControllerEditor : Editor
         serializedObject.Update();
         EditorGUILayout.PropertyField(defaultGradient);
         EditorGUILayout.PropertyField(errorGradient);
-        EditorGUILayout.PropertyField(edgeStart);
-        EditorGUILayout.PropertyField(edgeEnd);
         EditorGUILayout.PropertyField(edge);
         serializedObject.ApplyModifiedProperties();
     }

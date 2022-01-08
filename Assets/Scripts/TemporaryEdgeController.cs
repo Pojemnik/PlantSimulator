@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class TemporaryEdgeController : MonoBehaviour
 {
-    public PlantNode edgeStart;
-    public PlantNode edgeEnd;
     public PlantEdge edge;
 
     [SerializeField]
     private Gradient defaultGradient;
     [SerializeField]
     private Gradient errorGradient;
+
+    public new Collider2D collider;
 
     public HashSet<Collider2D> collidesWith { get; private set; }
 
@@ -42,11 +42,12 @@ public class TemporaryEdgeController : MonoBehaviour
         collidesWith = new HashSet<Collider2D>();
         edge.TriggerEnter += (_, c) => collidesWith.Add(c);
         edge.TriggerExit += (_, c) => collidesWith.Remove(c);
+        collider = edge.GetComponent<Collider2D>();
     }
 
     public void UpdateEdgePosition()
     {
-        edge.SetPositions(edgeStart.transform.position, edgeEnd.transform.position);
+        edge.SetPositions(edge.begin.transform.position, edge.end.transform.position);
         edge.UpdateCollider();
     }
 }

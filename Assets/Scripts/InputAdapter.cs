@@ -60,11 +60,13 @@ public class InputAdapter : MonoBehaviour
     private void ChangeTool(Tool tool)
     {
         EdgeSpawner.Instance.StopNodePlacement();
+        EdgeUpgrader.Instance.HideTemporaryEdge();
         if (tool == currentTool)
         {
             return;
         }
         currentTool = tool;
+        Debug.Log(currentTool);
     }
 
     public void SelectAddEdgeTool()
@@ -95,7 +97,11 @@ public class InputAdapter : MonoBehaviour
                 PlantEdge edge = hit.transform?.gameObject.GetComponent<PlantEdge>();
                 if (edge != null)
                 {
-                    //Show upgrade effect
+                    EdgeUpgrader.Instance.TestUpgrade(edge);
+                }
+                else
+                {
+                    EdgeUpgrader.Instance.HideTemporaryEdge();
                 }
                 break;
             default:
