@@ -771,6 +771,10 @@ PrefabInstance:
       propertyPath: m_Parameters.colorGradient.key1.r
       value: 0.7830189
       objectReference: {fileID: 0}
+    - target: {fileID: 5370861122904286512, guid: d4bdda8d0af0a624a99cda5da340fb35, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].value
+      value: 0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 5370861122904286513, guid: d4bdda8d0af0a624a99cda5da340fb35, type: 3}
       propertyPath: end
       value: 
@@ -2018,11 +2022,11 @@ MonoBehaviour:
   defaultRootWidthIndex: 0
   defaultWoodWidthIndex: 1
   edgeWidthsOnLevels:
-  - 0.1
-  - 0.26
-  - 0.46
-  - 0.56
-  - 0.26
+  - 0.15
+  - 0.25
+  - 0.3
+  - 0.35
+  - 0.4
   minStemHeight: 0.125
   maxRootHeight: 0
 --- !u!4 &1732530616
@@ -2832,6 +2836,10 @@ PrefabInstance:
     - target: {fileID: 5370861122904286512, guid: d4bdda8d0af0a624a99cda5da340fb35, type: 3}
       propertyPath: m_Positions.Array.data[1].z
       value: -0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5370861122904286512, guid: d4bdda8d0af0a624a99cda5da340fb35, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].value
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 5370861122904286513, guid: d4bdda8d0af0a624a99cda5da340fb35, type: 3}
       propertyPath: end

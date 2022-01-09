@@ -131,7 +131,13 @@ public class InputAdapter : MonoBehaviour
                 }
                 break;
             case Tool.Upgrade:
-                //Upgrade
+                {
+                    PlantEdge edge = hit.transform?.gameObject.GetComponent<PlantEdge>();
+                    if (edge != null)
+                    {
+                        EdgeUpgrader.Instance.Upgrade(edge);
+                    }
+                }
                 break;
             default:
                 Debug.Log("Incorrect tool");
