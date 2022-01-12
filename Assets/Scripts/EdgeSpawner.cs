@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System;
 
 public class EdgeSpawner : Singleton<EdgeSpawner>
 {
@@ -61,8 +62,8 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
             return;
         }
         placementStartEdge = edge;
-        Vector3 edgeVector = edge.end.transform.position - edge.begin.transform.position;
-        placementStartPosition = Vector3.Project((Vector3)position - edge.begin.transform.position, edgeVector);
+        Vector2 edgeVector = edge.end.transform.position - edge.begin.transform.position;
+        placementStartPosition = Vector3.Project(position - (Vector2)edge.begin.transform.position, edgeVector);
         placementStartPosition += (Vector2)edge.begin.transform.position;
         TestAndInitPlacementAtEndNode();
         edgePlacement = true;
@@ -115,11 +116,10 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
             }
             else
             {
-                Debug.LogError("Incorrect start nodes of colliding edges");
-                foreach (PlantNode node in closestNodesOnCollidingEdges)
-                {
-                    Debug.Log(node.gameObject.name);
-                }
+                PlantNode node = SelectClosestNode(closestNodesOnCollidingEdges);
+                closestNodesOnCollidingEdges.Clear();
+                closestNodesOnCollidingEdges.Add(node);
+                placementAtEndNode = true;
             }
         }
         else
@@ -141,6 +141,37 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
             }
         }
         return closestNodesOnCollidingEdges;
+    }
+
+    private PlantNode SelectClosestNode(HashSet<PlantNode> closestNodesOnCollidingEdges)
+    {
+        PlantNode node = GetClosestNode(closestNodesOnCollidingEdges);
+        List<(PlantEdge, CollidingEdgePart)> edgesCollidingWithSelectedNode = new List<(PlantEdge, CollidingEdgePart)>();
+        foreach ((PlantEdge, CollidingEdgePart) edge in collidingEdgesInfo)
+        {
+            if (edge.Item1.begin == node || edge.Item1.end == node)
+            {
+                edgesCollidingWithSelectedNode.Add(edge);
+            }
+        }
+        collidingEdgesInfo = edgesCollidingWithSelectedNode;
+        return node;
+    }
+
+    private PlantNode GetClosestNode(HashSet<PlantNode> closestNodesOnCollidingEdges)
+    {
+        PlantNode node = closestNodesOnCollidingEdges.ElementAt(0);
+        float dist = Vector2.Distance(node.transform.position, placementStartPosition);
+        foreach (PlantNode n in closestNodesOnCollidingEdges)
+        {
+            float nDist = Vector2.Distance(n.transform.position, placementStartPosition);
+            if (nDist < dist)
+            {
+                dist = nDist;
+                node = n;
+            }
+        }
+        return node;
     }
 
     private void InitPlacementAtEndNode(PlantNode startNode)

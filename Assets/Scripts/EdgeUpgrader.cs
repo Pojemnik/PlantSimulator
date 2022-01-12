@@ -47,8 +47,8 @@ public class EdgeUpgrader : Singleton<EdgeUpgrader>
         edgeToTest = edge;
         temporaryEdge.gameObject.SetActive(true);
         temporaryEdge.Level = edge.Level + 1;
-        temporaryEdge.edge.begin = edge.begin;
-        temporaryEdge.edge.end = edge.end;
+        temporaryEdge.edge.begin.transform.position = edge.begin.transform.position;
+        temporaryEdge.edge.end.transform.position = edge.end.transform.position;
         temporaryEdge.UpdateEdgePosition();
         UpgradedEdgeCollision collisionStatus = CheckIfCollides(edge);
         SetCollisionGraphics(collisionStatus);
