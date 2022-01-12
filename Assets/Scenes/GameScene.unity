@@ -285,6 +285,14 @@ PrefabInstance:
       propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].value
       value: 0.20482445
       objectReference: {fileID: 0}
+    - target: {fileID: 484370481888432033, guid: bc76a4103a60cce40aada5fa33f1b73c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2072863160902220814, guid: bc76a4103a60cce40aada5fa33f1b73c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2364775931793595249, guid: bc76a4103a60cce40aada5fa33f1b73c, type: 3}
       propertyPath: m_Layer
       value: 0

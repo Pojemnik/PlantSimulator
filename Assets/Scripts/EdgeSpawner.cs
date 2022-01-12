@@ -79,7 +79,7 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
     private void TestAndInitPlacementAtEndNode()
     {
         collidingEdgesInfo.Clear();
-        float testZoneRadius = PlantConfigManager.Instance.edgeWidthsOnLevels[placementStartEdge.Level] / 2;
+        float testZoneRadius = PlantConfigManager.Instance.edgeWidthsOnLevels[placementStartEdge.Level];
         GetStartCollision(testZoneRadius);
         HashSet<PlantNode> closestNodesOnCollidingEdges = TestPlacementAtEndNode(testZoneRadius);
         if (placementAtEndNode)
@@ -119,6 +119,7 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
                 PlantNode node = SelectClosestNode(closestNodesOnCollidingEdges);
                 closestNodesOnCollidingEdges.Clear();
                 closestNodesOnCollidingEdges.Add(node);
+                UpdadteStartCollision(node);
                 placementAtEndNode = true;
             }
         }
@@ -141,6 +142,20 @@ public class EdgeSpawner : Singleton<EdgeSpawner>
             }
         }
         return closestNodesOnCollidingEdges;
+    }
+
+    private void UpdadteStartCollision(PlantNode node)
+    {
+        HashSet<Collider2D> updatedStartCollision = new HashSet<Collider2D>();
+        foreach (Collider2D col in startCollision)
+        {
+            PlantEdge edge = col.gameObject.GetComponent<PlantEdge>();
+            if (edge.end == node || edge.begin == node)
+            {
+                updatedStartCollision.Add(col);
+            }
+        }
+        startCollision = updatedStartCollision;
     }
 
     private PlantNode SelectClosestNode(HashSet<PlantNode> closestNodesOnCollidingEdges)
